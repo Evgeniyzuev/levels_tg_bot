@@ -16,6 +16,7 @@ from aiogram import types
 # from database import SessionLocal, User
 
 from misc import bot
+db = database.SessionLocal()
 
 
 
@@ -34,12 +35,8 @@ def add_user(user_id, user_name, referral_link, referrer_id):
             "sales": 0, "bonuses_available": 0, "bonuses_gotten": 0, "guide_stage": 0, "current_leader_id": referrer_id, "referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
 
 
-        # with open('data.pickle', 'ab') as f:
-        #      pickle.dump(data, f)
-
-
 def get_balance_sum(user_id):
-    user = get_user(user_id)
+    user = user = get_user(user_id)
     balance_sum = user["real_estate"] + user["grow_wallet"] + user["liquid_wallet"]
     return balance_sum
 

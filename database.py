@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, types
 # from aiogram.dispatcher import Dispatcher
 # from aiogram.utils import executor
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table, DATETIME
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table, DATETIME, FLOAT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime, timedelta
@@ -19,10 +19,23 @@ user_referrer = Table('user_referrer', Base.metadata,
 class User(Base):
     __tablename__ = "users"
     user_id = Column(Integer, primary_key=True, index=True)
-    user_name = Column(String, unique=True, index=True)
-    referral_link = Column(String, unique=True, index=True)
+    user_name = Column(String, index=True)
+    referral_link = Column(String, unique=True)
     referrer_id = Column(Integer, ForeignKey("users.user_id"))
     registration_time = (Column, DATETIME)
+    level = Column(Integer, index=True)
+    real_estate = Column(FLOAT)
+    grow_wallet = Column(FLOAT)
+    liquid_wallet = Column(FLOAT)
+    turnover = Column(FLOAT)
+    sales = Column(Integer)
+    bonuses_available = Column(Integer)
+    bonuses_gotten = Column(Integer)
+    guide_stage = Column(Integer)
+    current_leader_id = Column(Integer, index=True)
+    referrers = Column(String)
+    referrals = Column(String)
+    bonus_cd_time = (Column, DATETIME)
     # referrer = relationship("User", back_populates="referred")
     # referrals = relationship("User", 
     #                         secondary=user_referrer, 
@@ -37,8 +50,7 @@ class User(Base):
 
 # DATABASE_URL = "sqlite:///bot.db"
 
-#  database.users[user_id] = {"time_start": time_now, "level":  0, "real_estate": 0, "grow_wallet": 0, "liquid_wallet": 0, "turnover": 0,\
-#             "sales": 0, "bonuses_available": 0, "bonuses_gotten": 0, "guide_stage": 0, "current_leader_id": referrer_id, "referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
+#  database.users[user_id] = {"referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
 
 
 engine = create_engine("sqlite:///bot.db")
@@ -49,8 +61,11 @@ async def get_or_create_user(db, user_id, user_name, referral_link, referrer_id)
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         time_now = datetime.now() + timedelta(hours=0, minutes=0)
-        user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time = time_now)
+        referrers_text = f'{referrer_id}'
+        user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=time_now, level=0, real_estate=0, grow_wallet=0, liquid_wallet=0, turnover=0,\
+            sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0, current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = time_now     )
         db.add(user)
+        db.commit()
         # if referrer_id:
         #     # referrer = await db.query(User).filter(User.id == referrer_id).first()
         #     referrer = db.query(User).filter(User.user_id == referrer_id).first()
@@ -63,7 +78,14 @@ async def get_user(db, user_id):
     user = db.query(User).filter(User.user_id == user_id).first()
     return user  
 
-
+async def user_info(db, user_id):
+    user = db.query(User).filter(User.user_id == user_id).first()
+    user_info = (f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nreferrer_id: {user.referrer_id}" 
+    + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
+    \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"\
+    )
+    return user_info
+#+f'{user.registration_time}'
 
 
 

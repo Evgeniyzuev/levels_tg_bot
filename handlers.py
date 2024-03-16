@@ -2,6 +2,7 @@ import kb
 import texts
 import utils
 import database #import SessionLocal, User
+from datetime import datetime, timedelta
 
 from aiogram import types, F, Router, flags
 from aiogram.fsm.context import FSMContext
@@ -18,7 +19,11 @@ from states import Gen
 async def start_handler(message: Message , command: CommandObject):
     user_id = message.from_user.id
     user_name = message.from_user.full_name
-    await bot.send_message(user_id, f"{user_name}, привет! Рад видеть! 🤗")
+    try:
+        await bot.send_message(user_id, f"{user_name}, привет! Рад видеть! 🤗")
+    finally:
+        pass
+
 
 # Referrer ID
     try:
@@ -28,20 +33,29 @@ async def start_handler(message: Message , command: CommandObject):
         await bot.send_message(user_id, text='❗️ Не могу расшифровать реферальную ссылку ❗️')
         referrer_id = 0
     if referrer_id == user_id:
-        await bot.send_message(user_id, text='❗️ Вы зашли по своей ссылке ❗️')
-
-
+        try:
+            await bot.send_message(user_id, text='❗️ Вы зашли по своей ссылке ❗️')
+        finally:
+            pass        
 
     if utils.get_user(user_id) == False:
         referral_link = await create_start_link(bot,str(message.from_user.id), encode=True)
         utils.add_user(user_id, user_name, referral_link, referrer_id)
         # referrer_name = utils.get_user(user_id)["referrer_name"]
 
-    await bot.send_message(user_id, text=f'ВНИМАНИЕ❗️❗️❗️\nБот работает в тестовом режиме\n❗️Никаких выплат не будет до релиза\nРепосты делайте на свой страх и риск')
-    await bot.send_message(referrer_id, text= f"По вашей ссылке зашел пользователь:\n{user_name}. ID: {user_id} \nВы получите бонус 🎁 когда пользователь откроет два бонуса.")
+    try:
+        await bot.send_message(user_id, text=f'ВНИМАНИЕ❗️❗️❗️\nБот работает в тестовом режиме\n❗️Никаких выплат не будет до релиза\nРепосты делайте на свой страх и риск')
+        await bot.send_message(referrer_id, text= f"По вашей ссылке зашел пользователь:\n{user_name}. ID: {user_id} \nВы получите бонус 🎁 когда пользователь откроет два бонуса.")
+    finally:
+        pass 
 
 
 # TRRRRRYYYY DATABASE
+    db = database.SessionLocal()
+
+
+
+ # TRRRRRYYYY DATABASE
     db = database.SessionLocal()
 
     try:
@@ -56,7 +70,58 @@ async def start_handler(message: Message , command: CommandObject):
 
     user = await  database.get_or_create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
 
-    await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nregistration_time: {user.registration_time}")
+    date_time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+    
+    await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nregistration_time: {date_time}")
+
+    text = await  database.user_info(db, message.from_user.id)
+    await message.answer(text+f'\nregistration_time: {date_time}')
+
+    # await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}")
+
+
+    # try:
+    #     user = await database.get_or_create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
+    #     # registration_time = f" {user.registration_time}"
+
+    #     # user_info = f'Registration Successful\nuser_id: {user.user_id}'
+
+
+
+    #     # user_info = (f"Registration Successful\nuser_id: {user.user_id}
+    #     # \nuser_name: {user.user_name}\nreferral_link: {user.referral_link} \nregistration_time:\ # {user.registration_time}\ 
+    #     # \nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
+    #     # \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}\
+    #     # \nreferrals: {user.referrals}\nbonus_cd_time: {user.bonus_cd_time}")
+    #     # await bot.send_message(user_id,  user_info)
+    #     user_info = await database.user_info(db, message.from_user.id)
+    #     await message.answer(user_id,user_info)
+    # except:
+    #     await message.answer(user_id,"user_info")
+    #     pass
+
+
+
+    # try:
+    #     referrer = await database.get_user(db, referrer_id)
+    #     db.commit()
+    # # if user.referrer:
+    # #         user.referrer.referred.append(user)
+    # #         # await notify_referrer(db, user.referrer, user)
+    #     await message.answer(f"Вас пригласил {referrer.user_name}")
+    # except:
+    #     await message.answer(f"Кто вас пригласил?")
+    #     pass
+
+
+    
+    
+
+
+    # user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=time_now, level=0, real_estate=0, grow_wallet=0, liquid_wallet=0, turnover=0,\
+    # sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0, current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = time_now     )
+
+
 
 
 
