@@ -1,4 +1,5 @@
 import asyncio
+import database
 from aiogram import Bot, types
 # from aiogram.dispatcher import Dispatcher
 # from aiogram.utils import executor
@@ -61,8 +62,6 @@ async def get_or_create_user(db, user_id, user_name, referral_link, referrer_id)
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         now = datetime.now()
-        # date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
-        # time_now_str = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         referrers_text = f'{referrer_id}'
         user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=now, level=0,
             real_estate=0, grow_wallet=0, liquid_wallet=0, turnover=0, sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0,
@@ -83,8 +82,8 @@ async def get_user(db, user_id):
     return user  
 
 async def user_info(db, user_id):
-    user = db.query(User).filter(User.user_id == user_id).first()
-    user_info = (f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{user.registration_time}" 
+    user = database.current_user
+    user_info = (f"\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{user.registration_time}" 
     + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
     \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"
     + f'\nbonus_cd_time:\n{user.bonus_cd_time}')
@@ -92,30 +91,5 @@ async def user_info(db, user_id):
 #+f'{user.registration_time}'
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+current_user = {}
 users = {}

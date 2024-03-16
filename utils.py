@@ -20,12 +20,8 @@ db = database.SessionLocal()
 
 
 
-def get_user(user_id):
-    if user_id not in database.users:
-    # if not db.users(user_id):
-         return False
-    else:
-          return database.users[user_id]
+def get_user():
+          return database.current_user
     
 def add_user(user_id, user_name, referral_link, referrer_id):
     if user_id not in database.users:
@@ -35,39 +31,38 @@ def add_user(user_id, user_name, referral_link, referrer_id):
             "sales": 0, "bonuses_available": 0, "bonuses_gotten": 0, "guide_stage": 0, "current_leader_id": referrer_id, "referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
 
 
-def get_balance_sum(user_id):
-    user = user = get_user(user_id)
-    balance_sum = user["real_estate"] + user["grow_wallet"] + user["liquid_wallet"]
+def get_balance_sum():
+    user  = get_user()
+    balance_sum = user.real_estate + user.grow_wallet + user.liquid_wallet 
     return balance_sum
 
 # BONUS
-def add_bonus(user_id):
-    user = get_user(user_id)
-    user["bonuses_gotten"] += 1
-    user["bonuses_available"] += 1
+def add_bonus():
+    user = get_user()
+    user.bonuses_gotten += 1
+    user.bonuses_available += 1
 
-def get_bonuses_available(user_id):
-    user = get_user(user_id)
-    return user["bonuses_available"]
+def get_bonuses_available():
+    return get_user().bonuses_available
 
-def get_bonuses_gotten(user_id):
-    user = get_user(user_id)
-    return user["bonuses_gotten"]
+def get_bonuses_gotten():
+    user = get_user()
+    return user.bonuses_gotten
 
 async def open_bonus(user_id):
-    user = get_user(user_id)
-    if user["bonuses_available"] >= 1:
-        user["bonuses_available"] -= 1
+    user = get_user()
+    if user.bonuses_available >= 1:
+        user.bonuses_available-= 1
         bonus_size = float(random.randint(0, 251))
         bonus_size = bonus_size / 100
         bonus_size = bonus_size ** 4
         bonus_size = bonus_size + 10.31
-        user["real_estate"] += bonus_size
-        user["turnover"] += bonus_size
-        bonuses_gotten = utils.get_bonuses_gotten(user_id)
+        user.real_estate += bonus_size
+        user.turnover += bonus_size
+        bonuses_gotten = utils.get_bonuses_gotten()
         text1 = '🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
         text2 = f"\n🎁 Бонус:         " + '%.2f' %(bonus_size) + " рублей\n" 
-        text3 = "💳 Баланс:      " + ( '%.2f' %(utils.get_balance_sum(user_id=user_id))) + " рублей"
+        text3 = "💳 Баланс:      " + ( '%.2f' %(utils.get_balance_sum())) + " рублей"
         await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'), caption=text1 + text2 + text3)
     else:
         await bot.send_video(user_id, video=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\\videos\\travolta.gif.mp4'), caption="\
@@ -78,31 +73,31 @@ async def open_bonus(user_id):
 # START Guide Stages
 async def start_guide_stages(user_id):
 
-    if utils.get_user(user_id)["guide_stage"] == 0:
+    if utils.get_user().guide_stage  == 0:
         await utils.start_guide1(user_id)
 
-    elif utils.get_user(user_id)["guide_stage"] == 1:
+    elif utils.get_user().guide_stage  == 1:
         await utils.start_guide2(user_id)
 
-    elif utils.get_user(user_id)["guide_stage"] == 2:
+    elif utils.get_user().guide_stage == 2:
         await utils.start_guide3(user_id)
 
-    elif utils.get_user(user_id)["guide_stage"] == 3:
+    elif utils.get_user().guide_stage  == 3:
         await utils.start_guide4(user_id)
 
-    elif utils.get_user(user_id)["guide_stage"] >= 4:
+    elif utils.get_user().guide_stage  >= 4:
             await utils.main_menu(user_id)
 
 
 async def get_balance(user_id):
-    if utils.get_user(user_id) == False:
+    if utils.get_user() == False:
          await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
     else:     
-        user = get_user(user_id)
-        text0 = "💳 Баланс:                      " + ( '%.2f' %(utils.get_balance_sum(user_id=user_id))) + " рублей"
-        text1 = "\n\n1️⃣ Restate(25%):             " + '%.2f' %(user["real_estate"]) + ' рублей'
-        text2 = "\n2️⃣ GROW(20%):               " + '%.2f' %(user["grow_wallet"]) + ' рублей'
-        text3 = "\n3️⃣ Liquid(0%):                  " + '%.2f' %(user["liquid_wallet"]) + ' рублей'
+        user = get_user()
+        text0 = "💳 Баланс:                      " + ( '%.2f' %(utils.get_balance_sum())) + " рублей"
+        text1 = "\n\n1️⃣ Restate(25%):             " + '%.2f' %(user.real_estate) + ' рублей'
+        text2 = "\n2️⃣ GROW(20%):               " + '%.2f' %(user.grow_wallet) + ' рублей'
+        text3 = "\n3️⃣ Liquid(0%):                  " + '%.2f' %(user.liquid_wallet) + ' рублей'
         balance = text0 + text1 + text2 + text3 + texts.accounts_about_text
         await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\real_estate_trees_lake.jpg'), caption=balance, reply_markup=kb.balance_markup )
 
@@ -113,35 +108,28 @@ async def main_menu(user_id):
     #  await bot.send_message(user_id, " Все  вкладки  главного  меню  ", reply_markup=kb.menu_markup)
 
 async def profile_tub(user_id):
-    user = get_user(user_id)
-    level = user["level"]
-    turnover = user["turnover"]
-    sales = user["sales"]
-    referral_link = user["referral_link"]
-    text = "🪪 Профиль" + f"\nВаш уровень: {level}"
-    text1 = "\n\nВесь оборот:   " + '%.2f' %(turnover) + ' рублей'
-    text2 = f"\nВсего продаж:    {sales}"
-    text3 = f"\n\nВаша личная реф ссылка: {referral_link}"
-    await bot.send_message(user_id, text + text1 + text2, reply_markup=kb.profile_markup)
+    user_info_text = "🪪 Профиль\n\n" + await database.user_info(db, user_id)
+    await bot.send_message(user_id, user_info_text, disable_web_page_preview=True, reply_markup=kb.profile_markup)
 
 async def level_tub(user_id):
-    level = utils.get_user(user_id)["level"]
+    level = database.current_user.level
     await bot.send_message(user_id, "🔼 Уровень" + f"\nВаш уровень: {level}", reply_markup=kb.resources_markup)
+
 async def balance_tub(user_id):
     await get_balance(user_id)
 
 async def partners_tub(user_id):
-    referrals = utils.get_user(user_id)["referrals"]
+    referrals = utils.get_user().referrals 
     await bot.send_message(user_id, "💎 Партнеры"+ f"\nВаши рефералы: {referrals}", reply_markup=kb.partners_markup)
 
 async def bonuses_tub(user_id):
-    if utils.get_user(user_id) == False:
+    if utils.get_user() == False:
         await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
     else:   
-        referral_link = utils.get_user(user_id)["referral_link"]
+        referral_link = utils.get_user().referral_link 
         text2 = f"\n\nВаша личная реф ссылка:\n{referral_link}"
-        await bot.send_message(user_id, texts.bonuses_tub_text1 + text2 + texts.bonuses_tub_text2 + f"{utils.get_bonuses_gotten(user_id)}"\
-                                + "\nДоступно бонусов: " + f"{utils.get_bonuses_available(user_id)}", reply_markup=kb.bonuses_markup)
+        await bot.send_message(user_id, texts.bonuses_tub_text1 + text2 + texts.bonuses_tub_text2 + f"{utils.get_bonuses_gotten()}"\
+                                + "\nДоступно бонусов: " + f"{utils.get_bonuses_available()}", reply_markup=kb.bonuses_markup)
         
 async def resources_tub(user_id):
     resurses_text = '\n\nОфициальный канал: https://t.me/Levels_up'
@@ -172,40 +160,38 @@ async def switch_tubs(code , user_id):
 async def start_guide1(user_id):
     await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\choose_your_level2.jpg.jpg'),caption=texts.start_guide1_text)
     await asyncio.sleep(1)
-    utils.get_user(user_id)["guide_stage"] = 1
-    if utils.get_user(user_id)["bonuses_gotten"] == 0:
-                utils.add_bonus(user_id)
-    elif utils.get_user(user_id)["bonuses_gotten"] >= 1:
+    utils.get_user().guide_stage  = 1
+    if utils.get_user().bonuses_gotten  == 0:
+                utils.add_bonus()
+    elif utils.get_user().bonuses_gotten  >= 1:
             await bot.send_message(user_id, 'Хм...\nКажется, вы уже получили первый бонус')
     
     await bot.send_message(user_id,"Начнем с небольшого бонуса", reply_markup=kb.bonus_button)
 
 # Открывам бонус 1. Про бонусы. Для второго бонуса - подписка на канал
 async def start_guide2(user_id):
-    # await utils.open_bonus(user_id)
     await asyncio.sleep(1)
     await bot.send_message(user_id, "Сначала бонусы могут содежать\nот 10 до 50 рублей.\n\nДальше - больше 🔼")
     await asyncio.sleep(1)
     await bot.send_message(user_id, "Можно получить следующий бонус за 2 простых действия:")
     await asyncio.sleep(1)
     await bot.send_message(user_id, "1. Подписка на канал", reply_markup=kb.subscribe_buttons)
-    utils.get_user(user_id)["guide_stage"] = 2
+    utils.get_user().guide_stage = 2
 
 # Поделиться своей реферальной ссылкой в ТГ.
 async def start_guide3(user_id):  
-    #  if utils.get_user(callback_query.from_user.id,)["guide_stage"] == 2:
         user_channel_status = await bot.get_chat_member(chat_id='-1001973511610', user_id=user_id)
         if user_channel_status != 'left':
             if user_channel_status.status == "creator" or user_channel_status.status == "member" or user_channel_status.status == 'ChatMemberMember':
-                utils.get_user(user_id)["guide_stage"] = 3
-                if utils.get_user(user_id)["bonuses_gotten"] == 1:
-                    utils.add_bonus(user_id)
-                elif utils.get_user(user_id)["bonuses_gotten"] >= 2:
+                utils.get_user().guide_stage  = 3
+                if utils.get_user().bonuses_gotten  == 1:
+                    utils.add_bonus()
+                elif utils.get_user().bonuses_gotten  >= 2:
                     await bot.send_message(user_id, 'Хм...\nКажется, вы уже получили 2 бонуса')
                 await bot.send_message(user_id, 'Спасибо за подписку')
                 await bot.send_message(user_id, '2. Поделиться СВОЕЙ реферальной ссылкой в ТГ.')
                 await asyncio.sleep(2)
-                referral_link = utils.get_user(user_id)["referral_link"]
+                referral_link = utils.get_user().referral_link 
                 await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'),\
                             caption= texts.start_guide3_text_1 +f"{referral_link}" +"\n🎁 Бонус здесь⬆️   🔁РЕПОСТ тут➡️")
                 await asyncio.sleep(2)
@@ -216,13 +202,13 @@ async def start_guide3(user_id):
 # Без подписки на канал нет бонус
 async def start_guide3_nosub(user_id):
 
-    utils.get_user(user_id)["guide_stage"] = 3
-    if utils.get_user(user_id,)["bonuses_gotten"] == 1:
-                    utils.get_user(user_id,)["bonuses_gotten"] = 2
+    utils.get_user().guide_stage  = 3
+    if utils.get_user().bonuses_gotten == 1:
+                    utils.get_user().bonuses_gotten = 2
     await bot.send_message(user_id, '☹️')
     await bot.send_message(user_id, '2. Поделиться своей реферальной ссылкой в ТГ.')
     await asyncio.sleep(2)
-    referral_link = utils.get_user(user_id)["referral_link"]
+    referral_link = utils.get_user().referral_link 
     await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'),\
                 caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 Бонус здесь⬆️   🔁РЕПОСТ тут➡️")
     await asyncio.sleep(2)
@@ -235,8 +221,7 @@ async def start_guide3_1(user_id):
 
 
 async def start_guide4(user_id):
-    utils.get_user(user_id)["guide_stage"] = 4
-    # await utils.open_bonus(user_id)
+    utils.get_user().guide_stage   = 4
     await asyncio.sleep(1)
     await bot.send_message(user_id, texts.start_guide4_text, disable_web_page_preview=True)
     await asyncio.sleep(2)
