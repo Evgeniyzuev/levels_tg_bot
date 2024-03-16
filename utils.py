@@ -32,7 +32,7 @@ def add_user(user_id, user_name, referral_link, referrer_id):
    
         database.users[user_id] = {"user_id":user_id, "user_name": user_name, "time_start": time_now, "level":  0, "real_estate": 0, "grow_wallet": 0, "liquid_wallet": 0, "turnover": 0,\
             "sales": 0, "bonuses_available": 0, "bonuses_gotten": 0, "guide_stage": 0, "current_leader_id": referrer_id, "referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
-        data = database.users
+
 
         # with open('data.pickle', 'ab') as f:
         #      pickle.dump(data, f)

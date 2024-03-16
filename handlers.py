@@ -1,7 +1,7 @@
 import kb
 import texts
 import utils
-from database import SessionLocal, User
+import database #import SessionLocal, User
 
 from aiogram import types, F, Router, flags
 from aiogram.fsm.context import FSMContext
@@ -42,38 +42,22 @@ async def start_handler(message: Message , command: CommandObject):
 
 
 # TRRRRRYYYY DATABASE
-    db = SessionLocal()
-    async def get_or_create_user(db, user_id, user_name, referral_link, referrer_id):
-        # user = await db.query(User).filter(User.id == user_id).first()
-        
-        user = db.query(User).filter(User.user_id == user_id).first()
-        if not user:
-            user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id)
-            db.add(user)
-            # if referrer_id:
-            #     # referrer = await db.query(User).filter(User.id == referrer_id).first()
-            #     referrer = db.query(User).filter(User.user_id == referrer_id).first()
-            #     if referrer:
-            #         user.referrer_id = referrer.user_id
-            #         referrer.subscribers.append(user)
-        return user 
-    
-    async def get_user(db, user_id):
-        user = db.query(User).filter(User.user_id == user_id).first()
-        return user    
-    
-    
+    db = database.SessionLocal()
+
     try:
-        referrer = await get_user(db, referrer_id)
+        referrer = await database.get_user(db, referrer_id)
         # if user.referrer:
         #         user.referrer.referred.append(user)
         #         # await notify_referrer(db, user.referrer, user)
         db.commit()
         await message.answer(f"Вас пригласил {referrer.user_name}")
     except:
-        await message.answer(f"Кто тебя пригласил?")
+        await message.answer(f"Кто вас пригласил?")
 
-    user = await get_or_create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
+    user = await  database.get_or_create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
+
+    await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nregistration_time: {user.registration_time}")
+
 
 
 
