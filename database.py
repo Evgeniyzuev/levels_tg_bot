@@ -2,7 +2,7 @@ import asyncio
 from aiogram import Bot, types
 # from aiogram.dispatcher import Dispatcher
 # from aiogram.utils import executor
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table, DATETIME, FLOAT
+from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Table, DateTime, FLOAT,DATETIME
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship
 from datetime import datetime, timedelta
@@ -22,7 +22,7 @@ class User(Base):
     user_name = Column(String, index=True)
     referral_link = Column(String, unique=True)
     referrer_id = Column(Integer, ForeignKey("users.user_id"))
-    registration_time = (Column, DATETIME)
+    registration_time = Column(DATETIME)
     level = Column(Integer, index=True)
     real_estate = Column(FLOAT)
     grow_wallet = Column(FLOAT)
@@ -35,7 +35,7 @@ class User(Base):
     current_leader_id = Column(Integer, index=True)
     referrers = Column(String)
     referrals = Column(String)
-    bonus_cd_time = (Column, DATETIME)
+    bonus_cd_time = Column ( String)
     # referrer = relationship("User", back_populates="referred")
     # referrals = relationship("User", 
     #                         secondary=user_referrer, 
@@ -60,10 +60,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 async def get_or_create_user(db, user_id, user_name, referral_link, referrer_id):   # user = await db.query(User).filter(User.id == user_id).first()
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
-        time_now = datetime.now() + timedelta(hours=0, minutes=0)
+        now = datetime.now()
+        # date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
+        # time_now_str = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
         referrers_text = f'{referrer_id}'
-        user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=time_now, level=0, real_estate=0, grow_wallet=0, liquid_wallet=0, turnover=0,\
-            sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0, current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = time_now     )
+        user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=now, level=0,
+            real_estate=0, grow_wallet=0, liquid_wallet=0, turnover=0, sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0,
+            current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = now 
+                  )
         db.add(user)
         db.commit()
         # if referrer_id:
@@ -80,10 +84,10 @@ async def get_user(db, user_id):
 
 async def user_info(db, user_id):
     user = db.query(User).filter(User.user_id == user_id).first()
-    user_info = (f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nreferrer_id: {user.referrer_id}" 
+    user_info = (f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{user.registration_time}" 
     + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
-    \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"\
-    )
+    \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"
+    + f'\nbonus_cd_time:\n{user.bonus_cd_time}')
     return user_info
 #+f'{user.registration_time}'
 

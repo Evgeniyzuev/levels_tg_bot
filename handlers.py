@@ -9,6 +9,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, InputFile
 from aiogram.filters import Command, CommandStart, CommandObject
 from aiogram.utils.deep_linking import create_start_link, decode_payload
+from sqlalchemy.sql import func
 
 from misc import dp, bot
 from states import Gen
@@ -50,12 +51,8 @@ async def start_handler(message: Message , command: CommandObject):
         pass 
 
 
-# TRRRRRYYYY DATABASE
-    db = database.SessionLocal()
-
-
-
  # TRRRRRYYYY DATABASE
+    # TRRRRRYYYY DATABASE
     db = database.SessionLocal()
 
     try:
@@ -68,14 +65,52 @@ async def start_handler(message: Message , command: CommandObject):
     except:
         await message.answer(f"Кто вас пригласил?")
 
+    referral_link = await create_start_link(bot,str(message.from_user.id), encode=True)
     user = await  database.get_or_create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
+    # user =await database.get_user (db, message.from_user.id) 
 
-    date_time = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
+
     
-    await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nregistration_time: {date_time}")
+    user_info_text = await database.user_info(db, user_id)
 
-    text = await  database.user_info(db, message.from_user.id)
-    await message.answer(text+f'\nregistration_time: {date_time}')
+    await message.answer(user_info_text)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    # db = database.SessionLocal()
+    # await  database.create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
+    # try:
+    #     referrer = await database.get_user(db, referrer_id)
+    #     # if user.referrer:
+    #     #         user.referrer.referred.append(user)
+    #     #         # await notify_referrer(db, user.referrer, user)
+    #     db.commit()
+    #     await message.answer(f"Вас пригласил {referrer.user_name}")
+    # except:
+    #     await message.answer(f"Кто вас пригласил?")
+    # referral_link = await create_start_link(bot,str(message.from_user.id), encode=True)
+
+    
+
+   
+
+
+    # # await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}\nregistration_time:" )
+
+    # text = await  database.user_info(db, message.from_user.id)
+    # await message.answer(text)
 
     # await message.answer(f"Registration Successful\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link: {user.referral_link}")
 
