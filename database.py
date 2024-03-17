@@ -59,7 +59,8 @@ Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 database.db = database.SessionLocal()
 
-async def get_or_create_user( user_id, user_name, referral_link, referrer_id, db=database.db):   # user = await db.query(User).filter(User.id == user_id).first()
+async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):   # user = await db.query(User).filter(User.id == user_id).first()
+    db=database.db
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         await bot.send_message(user_id, "пользователь не найден")
@@ -81,8 +82,10 @@ async def get_or_create_user( user_id, user_name, referral_link, referrer_id, db
         #     if referrer:
         #         user.referrer_id = referrer.user_id
         #         referrer.subscribers.append(user)
-    await bot.send_message(user_id, "Добавляю пользователя в локальную мапу")    
+    await bot.send_message(user_id, f"Добавляю пользователя {user.user_name} с балансом {user.real_estate} в локальную мапу")    
     database.local_users[user_id] = user
+    local_user = database.local_users[user_id]
+    await bot.send_message(user_id, f"Пользователь {local_user.user_name} с балансом {local_user.real_estate} добавлен")  
 
     return user 
 

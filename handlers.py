@@ -62,7 +62,7 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
     #     await message.answer(f"Кто вас пригласил?")
 
     referral_link = await create_start_link(bot,str(user_id), encode=True)
-    user = await database.get_or_create_user(user_id, user_name, referral_link, referrer_id, db=database.db)
+    user = await database.get_or_create_user(user_id, user_name, referral_link, referrer_id)
     try:
         local_user = database.local_users[user_id]
         local_user_name = local_user.user_name
@@ -119,7 +119,7 @@ async def process_open_bonus_button(callback_query: types.CallbackQuery): #messa
 async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
     await bot.edit_message_reply_markup(user_id, message_id=callback_query.message.message_id, reply_markup=None )
-    utils.add_bonus(user_id)
+    await utils.add_bonus(user_id)
     await bot.send_message(user_id, text="+🎁 Бонус получен!\nОткройте его на вкладке Бонусы")
 
 @dp.callback_query(F.data == "check_subscribe_button")

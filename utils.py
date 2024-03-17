@@ -142,14 +142,17 @@ async def balance_tub(user_id):
 
 async def partners_tub(user_id):
     user = await utils.get_user(user_id)
-
-    referrals =user.referrals 
+    referrals = user.referrals 
     leader_id = user.current_leader_id
-    current_leader = await utils.get_user(leader_id)
-    leader_name=current_leader.user_name
-    leader_level=current_leader.level
-    await bot.send_message(user_id, "💎 Партнеры" +f'Ваш лидер сейчас: {leader_name}\nLevel: {leader_level} ' 
+    try:
+        current_leader = await utils.get_user(leader_id)
+        leader_name = current_leader.user_name
+        leader_level=current_leader.level
+        await bot.send_message(user_id, "💎 Партнеры" +f'\n\nВаш лидер сейчас: {leader_name}\nLevel: {leader_level} ' 
         + f"\n\n\nВаши рефералы: {referrals}", reply_markup=kb.partners_markup)
+    except:
+        await bot.send_message(user_id, "💎 Партнеры" +f'\n\nВаш лидер не найден' 
+            + f"\n\n\nВаши рефералы: {referrals}", reply_markup=kb.partners_markup)
 
 async def bonuses_tub(user_id):
     user = await database.get_user(user_id)
