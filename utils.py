@@ -8,13 +8,6 @@ import asyncio
 from datetime import datetime, timedelta
 
 from aiogram import types 
-# from aiogram import Bot, F, Router, flags
-# from aiogram.fsm.context import FSMContext
-# from aiogram.types import Message, InputFile
-# from aiogram.filters import Command
-# from aiogram.enums.parse_mode import ParseMode
-# from database import SessionLocal, User
-
 from misc import bot
 
 
@@ -27,7 +20,8 @@ async def get_user(user_id):
     # referral_link = "https://nahuy"
     # referrer_id = 666
     # user = await database.get_or_create_user(user_name, referral_link, referrer_id, database.db,)
-    return  database.current_user
+    user = await database.get_user(user_id)
+    return  user
     
 # def add_user(user_id, user_name, referral_link, referrer_id):
 #     if user_id not in database.users:
@@ -37,27 +31,43 @@ async def get_user(user_id):
 #             "sales": 0, "bonuses_available": 0, "bonuses_gotten": 0, "guide_stage": 0, "current_leader_id": referrer_id, "referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
 
 
-async def get_balance_sum(user_id):
-    user  = await get_user(user_id)
-    balance_sum = user.real_estate + user.grow_wallet + user.liquid_wallet 
-    return balance_sum
+# async def get_balance_sum(user_id):
+#     user  = await get_user(user_id)
+#     balance_sum = user.real_estate + user.grow_wallet + user.liquid_wallet 
+#     return balance_sum
 
 # BONUS
 async def add_bonus(user_id):
-    user = await get_user(user_id)
-    user.bonuses_gotten += 1
-    user.bonuses_available += 1
+    # user = await get_user(user_id)
+    try:
+        # current_user = database.db.query(database.User).filter(database.User.user_id == user_id).first()
+        # await bot.send_message(user_id,"get_user: Пользователь найден")
+        # current_user.bonuses_gotten+= 1
+        # current_user.bonuses_available+= 1
+        db = database.SessionLocal()
+        user = database.local_users[user_id] 
+        await bot.send_message(user_id, 'Сейчас выдам первый бонус')
+        user.bonuses_gotten += 1
+        user.bonuses_available += 1
+        db.refresh(user)
+        db.commit()
+        await bot.send_message(user_id, 'проверяй')
+    except:
+         await bot.send_message(user_id, 'Пользователь не найден.\nПожалуйста, войдите по реферальной ссылке')
+    # user.bonuses_gotten += 1
+    # user.bonuses_available += 1
 
 async def get_bonuses_available(user_id):
-    user = await get_user(user_id).bonuses_available
-    return user
+    user = await database.get_user(user_id)
+    bonuses_available = user.bonuses_available
+    return bonuses_available
 
 async def get_bonuses_gotten(user_id):
     user = await get_user(user_id)
     return user.bonuses_gotten
 
 async def open_bonus(user_id):
-    user = await get_user(user_id)
+    user = await database.get_user(user_id)
     if user.bonuses_available >= 1:
         user.bonuses_available-= 1
         bonus_size = float(random.randint(0, 251))
@@ -66,10 +76,11 @@ async def open_bonus(user_id):
         bonus_size = bonus_size + 10.31
         user.real_estate += bonus_size
         user.turnover += bonus_size
-        bonuses_gotten = await utils.get_bonuses_gotten(user_id)
+        bonuses_gotten = user.bonuses_gotten
+        balance_sum = user.real_estate+user.grow_wallet+user.liquid_wallet
         text1 = '🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
         text2 = f"\n🎁 Бонус:         " + '%.2f' %(bonus_size) + " рублей\n" 
-        text3 = "💳 Баланс:      " + ( '%.2f' %(await utils.get_balance_sum(user_id))) + " рублей"
+        text3 = "💳 Баланс:      " + ( '%.2f' %(balance_sum)) + " рублей"
         await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'), caption=text1 + text2 + text3)
     else:
         await bot.send_video(user_id, video=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\\videos\\travolta.gif.mp4'), caption="\
@@ -79,32 +90,35 @@ async def open_bonus(user_id):
 
 # START Guide Stages
 async def start_guide_stages(user_id):
+    user = await database.get_user(user_id)
 
-    if database.current_user.guide_stage  == 0:
+    if user.guide_stage  == 0:
         await utils.start_guide1(user_id)
 
-    elif await utils.get_user(user_id).guide_stage  == 1:
+    elif user.guide_stage  == 1:
         await utils.start_guide2(user_id)
 
-    elif await utils.get_user(user_id).guide_stage == 2:
+    elif user.guide_stage == 2:
         await utils.start_guide3(user_id)
 
-    elif await utils.get_user(user_id).guide_stage  == 3:
+    elif user.guide_stage  == 3:
         await utils.start_guide4(user_id)
 
-    elif await utils.get_user(user_id).guide_stage  >= 4:
+    elif user.guide_stage  >= 4:
             await utils.main_menu(user_id)
 
 
 async def get_balance(user_id):
-    if await utils.get_user(user_id) == False:
-         await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
-    else:     
+    # if await utils.get_user(user_id) == False:
+    #      await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
+    # else:     
         user = await get_user(user_id)
-        text0 = "💳 Баланс:                      " + ( '%.2f' %(await utils.get_balance_sum(user_id))) + " рублей"
+
         text1 = "\n\n1️⃣ Restate(25%):             " + '%.2f' %(user.real_estate) + ' рублей'
         text2 = "\n2️⃣ GROW(20%):               " + '%.2f' %(user.grow_wallet) + ' рублей'
         text3 = "\n3️⃣ Liquid(0%):                  " + '%.2f' %(user.liquid_wallet) + ' рублей'
+        sum = user.real_estate + user.grow_wallet + user.liquid_wallet
+        text0 = "💳 Баланс:                       " + ( '%.2f' %(sum)) + " рублей"
         balance = text0 + text1 + text2 + text3 + texts.accounts_about_text
         await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\real_estate_trees_lake.jpg'), caption=balance, reply_markup=kb.balance_markup )
 
@@ -138,9 +152,9 @@ async def partners_tub(user_id):
         + f"\n\n\nВаши рефералы: {referrals}", reply_markup=kb.partners_markup)
 
 async def bonuses_tub(user_id):
-    user = database.current_user
-    bonuses_available = await utils.get_bonuses_available()
-    bonuses_gotten = await utils.get_bonuses_gotten()
+    user = await database.get_user(user_id)
+    bonuses_available = user.bonuses_available
+    bonuses_gotten = user.bonuses_gotten
     if await utils.get_user(user_id) == False:
         await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
     else:   
@@ -180,10 +194,11 @@ async def start_guide1(user_id):
     await asyncio.sleep(1)
     # user = await utils.get_user(user_id)
     # utils.get_user(user_id).guide_stage  = 1
-    database.current_user.guide_stage  = 1
-    if database.current_user.bonuses_gotten  == 0:
-                await utils.add_bonus(user_id)
-    elif database.current_user.bonuses_gotten  >= 1:
+    user = database.local_users[user_id]
+    user.guide_stage  = 1
+    if user.bonuses_gotten  == 0:
+         await utils.add_bonus(user_id)
+    elif user.bonuses_gotten  >= 1:
             await bot.send_message(user_id, 'Хм...\nКажется, вы уже получили первый бонус')
     
     await bot.send_message(user_id,"Начнем с небольшого бонуса", reply_markup=kb.bonus_button)
@@ -197,19 +212,20 @@ async def start_guide2(user_id):
     await asyncio.sleep(1)
     await bot.send_message(user_id, "1. Подписка на канал", reply_markup=kb.subscribe_buttons)
     # utils.get_user(user_id).guide_stage = 2
-    database.current_user.guide_stage  = 2
+    user = database.local_users[user_id]
+    user.guide_stage  = 2
 
 # Поделиться своей реферальной ссылкой в ТГ.
 async def start_guide3(user_id):  
-        user = database.current_user
+        user = database.local_users[user_id]
         user_channel_status = await bot.get_chat_member(chat_id='-1001973511610', user_id=user_id)
         if user_channel_status != 'left':
             if user_channel_status.status == "creator" or user_channel_status.status == "member" or user_channel_status.status == 'ChatMemberMember':
                 # utils.get_user(user_id).guide_stage  = 3
-                database.current_user.guide_stage  = 3
-                if database.current_user.bonuses_gotten  == 1:
+                user.guide_stage  = 3
+                if user.bonuses_gotten  == 1:
                     await utils.add_bonus(user_id)
-                elif database.current_user.bonuses_gotten  >= 2:
+                elif user.bonuses_gotten  >= 2:
                     await bot.send_message(user_id, 'Хм...\nКажется, вы уже получили 2 бонуса')
                 await bot.send_message(user_id, 'Спасибо за подписку')
                 await bot.send_message(user_id, '2. Поделиться СВОЕЙ реферальной ссылкой в ТГ.')
@@ -226,8 +242,9 @@ async def start_guide3(user_id):
 async def start_guide3_nosub(user_id):
 
     # utils.get_user(user_id).guide_stage  = 3
-    database.current_user.guide_stage  = 3
-    user = await utils.get_user(user_id)
+    # user.guide_stage  = 3
+    user = database.local_users[user_id]
+    user.guide_stage  = 3
     if user.bonuses_gotten == 1:
                     user.bonuses_gotten = 2
     await bot.send_message(user_id, '☹️')
@@ -246,8 +263,8 @@ async def start_guide3_1(user_id):
 
 
 async def start_guide4(user_id):
-    # utils.get_user(user_id).guide_stage   = 4
-    database.current_user.guide_stage  = 4
+    user = database.local_users[user_id]
+    user.guide_stage  = 4
     await asyncio.sleep(1)
     await bot.send_message(user_id, texts.start_guide4_text, disable_web_page_preview=True)
     await asyncio.sleep(2)

@@ -1,5 +1,6 @@
 import asyncio
 import database
+from misc import dp, bot
 from aiogram import Bot, types
 # from aiogram.dispatcher import Dispatcher
 # from aiogram.utils import executor
@@ -51,7 +52,6 @@ class User(Base):
 
 # DATABASE_URL = "sqlite:///bot.db"
 
-#  database.users[user_id] = {"referrers": [referrer_id], "referrals": [], "referral_link": referral_link, "bonus_cd": time_now}
 
 
 engine = create_engine("sqlite:///bot.db")
@@ -59,46 +59,53 @@ Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 database.db = database.SessionLocal()
 
-async def get_or_create_user( user_id, user_name, referral_link, referrer_id, db=database.db,):   # user = await db.query(User).filter(User.id == user_id).first()
+async def get_or_create_user( user_id, user_name, referral_link, referrer_id, db=database.db):   # user = await db.query(User).filter(User.id == user_id).first()
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
+        await bot.send_message(user_id, "пользователь не найден")
         now = datetime.now()
         referrers_text = f'{referrer_id}'
         user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=now, level=0,
             real_estate=0, grow_wallet=0, liquid_wallet=0, turnover=0, sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0,
             current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = now 
                   )
+        # database.current_user = user
+        database.local_users[user_id] = user
         db.add(user)
+        # db.refresh(user)
         db.commit()
+        # db.close()
         # if referrer_id:
         #     # referrer = await db.query(User).filter(User.id == referrer_id).first()
         #     referrer = db.query(User).filter(User.user_id == referrer_id).first()
         #     if referrer:
         #         user.referrer_id = referrer.user_id
         #         referrer.subscribers.append(user)
-    database.current_user = user
+    await bot.send_message(user_id, "Добавляю пользователя в локальную мапу")    
+    database.local_users[user_id] = user
+
     return user 
 
 async def get_user(user_id):
-    # if database.current_user == {}:
     db = database.SessionLocal()
-    # user = database.db.query(User).filter(User.user_id == user_id).first()
-    #     database.current_user = user
+    try:
+        current_user = database.local_users[user_id]
+        await bot.send_message(user_id,"get_user: Пользователь найден")
+        return  current_user
+    except:
+    # if not current_user :
+        await bot.send_message(user_id,"get_user: выгружаю юзера из даты базы")
+        # database.current_user = db.query(User).filter(User.user_id == user_id).first()
+        database.local_users[user_id] = db.query(User).filter(User.user_id == user_id).first()
+        user = database.local_users[user_id]  
+        return  user
     # else:
-    #     user = database.current_user
-    # db = database.SessionLocal()
-
-    current_user = db.query(User).filter(User.user_id == user_id).first()
-    return current_user        
-
-    # user = db.query(User).filter(User.user_id == user_id).first()
-    # database.current_user = user
-    # return user  
+            
 
 async def user_info(user_id):
-    user = await get_user(user_id)
-    registration_time = user.registration_time.strftime('%Y-%m-%d %H:%M:%S')
-    bonus_cd_time = user.bonus_cd_time.strftime('%Y-%m-%d %H:%M:%S')
+    user = database.local_users[user_id]
+    registration_time = user.registration_time.strftime('%Y-%m-%d %H:%M:%S')   # [user_id]
+    bonus_cd_time = user.bonus_cd_time.strftime('%Y-%m-%d %H:%M:%S') # [user_id]
     user_info = (f"\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{registration_time}" 
     + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
     \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"
@@ -111,5 +118,6 @@ async def user_info(user_id):
 #     return user.level
 
 
-current_user = {}
+# current_user = {}
+local_users = {}
 # users = {}
