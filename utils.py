@@ -44,13 +44,14 @@ async def add_bonus(user_id):
         # await bot.send_message(user_id,"get_user: Пользователь найден")
         # current_user.bonuses_gotten+= 1
         # current_user.bonuses_available+= 1
-        db = database.SessionLocal()
+        # db = database.SessionLocal()
         user = database.local_users[user_id] 
         await bot.send_message(user_id, 'Сейчас выдам первый бонус')
         user.bonuses_gotten += 1
         user.bonuses_available += 1
-        db.refresh(user)
-        db.commit()
+        # db.refresh(user)
+        db = database.SessionLocal()
+        record = db.merge(database.User( ))
         await bot.send_message(user_id, 'проверяй')
     except:
          await bot.send_message(user_id, 'Пользователь не найден.\nПожалуйста, войдите по реферальной ссылке')
@@ -76,6 +77,8 @@ async def open_bonus(user_id):
         bonus_size = bonus_size + 10.31
         user.real_estate += bonus_size
         user.turnover += bonus_size
+        db = database.SessionLocal()
+        record = db.merge(database.User( ))
         bonuses_gotten = user.bonuses_gotten
         balance_sum = user.real_estate+user.grow_wallet+user.liquid_wallet
         text1 = '🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
@@ -203,7 +206,8 @@ async def start_guide1(user_id):
          await utils.add_bonus(user_id)
     elif user.bonuses_gotten  >= 1:
             await bot.send_message(user_id, 'Хм...\nКажется, вы уже получили первый бонус')
-    
+    db = database.SessionLocal()
+    record = db.merge(database.User())
     await bot.send_message(user_id,"Начнем с небольшого бонуса", reply_markup=kb.bonus_button)
 
 # Открывам бонус 1. Про бонусы. Для второго бонуса - подписка на канал
@@ -217,6 +221,8 @@ async def start_guide2(user_id):
     # utils.get_user(user_id).guide_stage = 2
     user = database.local_users[user_id]
     user.guide_stage  = 2
+    db = database.SessionLocal()
+    record = db.merge(database.User( ))
 
 # Поделиться своей реферальной ссылкой в ТГ.
 async def start_guide3(user_id):  
@@ -240,12 +246,12 @@ async def start_guide3(user_id):
                 await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
             else:
                 await bot.send_message(user_id, 'Нет подписки. Можно продолжить без подписки и потерять следующий бонус 😱', reply_markup=kb.subscribe_buttons2)
+        db = database.SessionLocal()
+        record = db.merge(database.User( ))
+
 
 # Без подписки на канал нет бонус
 async def start_guide3_nosub(user_id):
-
-    # utils.get_user(user_id).guide_stage  = 3
-    # user.guide_stage  = 3
     user = database.local_users[user_id]
     user.guide_stage  = 3
     if user.bonuses_gotten == 1:
@@ -258,6 +264,9 @@ async def start_guide3_nosub(user_id):
                 caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 Бонус здесь⬆️   🔁РЕПОСТ тут➡️")
     await asyncio.sleep(2)
     await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
+    db = database.SessionLocal()
+    record = db.merge(database.User( ))
+
 
 async def start_guide3_1(user_id):
     await bot.send_message(user_id, 'OK')
@@ -272,6 +281,8 @@ async def start_guide4(user_id):
     await bot.send_message(user_id, texts.start_guide4_text, disable_web_page_preview=True)
     await asyncio.sleep(2)
     await bot.send_message(user_id, texts.start_guide4_text_2, reply_markup=kb.menu_button_markup)
+    db = database.SessionLocal()
+    record = db.merge(database.User( ))
 
 
 

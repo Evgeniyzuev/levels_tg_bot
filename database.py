@@ -82,18 +82,17 @@ async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):  
         #     if referrer:
         #         user.referrer_id = referrer.user_id
         #         referrer.subscribers.append(user)
-    await bot.send_message(user_id, f"Добавляю пользователя {user.user_name} с балансом {user.real_estate} в локальную мапу")    
+    # await bot.send_message(user_id, f"Добавлен {user.user_name}\n с балансом {user.real_estate}")    
     database.local_users[user_id] = user
     local_user = database.local_users[user_id]
-    await bot.send_message(user_id, f"Пользователь {local_user.user_name} с балансом {local_user.real_estate} добавлен")  
-
+    await bot.send_message(user_id, f"Добавлен {local_user.user_name}\nс балансом {local_user.real_estate}")  
     return user 
 
 async def get_user(user_id):
     db = database.SessionLocal()
     try:
         current_user = database.local_users[user_id]
-        await bot.send_message(user_id,"get_user: Пользователь найден")
+        # await bot.send_message(user_id,"get_user: Пользователь найден")
         return  current_user
     except:
     # if not current_user :
@@ -106,14 +105,18 @@ async def get_user(user_id):
             
 
 async def user_info(user_id):
-    user = database.local_users[user_id]
-    registration_time = user.registration_time.strftime('%Y-%m-%d %H:%M:%S')   # [user_id]
-    bonus_cd_time = user.bonus_cd_time.strftime('%Y-%m-%d %H:%M:%S') # [user_id]
-    user_info = (f"\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{registration_time}" 
-    + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
-    \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"
-    + f'\nbonus_cd_time:\n{bonus_cd_time}')
-    return user_info
+    try:
+        user = database.local_users[user_id]
+        registration_time = user.registration_time.strftime('%Y-%m-%d %H:%M:%S')   # [user_id]
+        bonus_cd_time = user.bonus_cd_time.strftime('%Y-%m-%d %H:%M:%S') # [user_id]
+        user_info = (f"\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{registration_time}" 
+        + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
+        \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"
+        + f'\nbonus_cd_time:\n{bonus_cd_time}')
+        return user_info
+    except:
+        await bot.send_message(user_id, "Бот не обновляется♻️\nПерезайдите по реф.ссылке или попробуйте позднее") 
+   
 #+f'{user.registration_time}'
 
 # async def get_level_by_id(db, user_id):

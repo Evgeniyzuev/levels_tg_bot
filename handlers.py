@@ -63,13 +63,13 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
 
     referral_link = await create_start_link(bot,str(user_id), encode=True)
     user = await database.get_or_create_user(user_id, user_name, referral_link, referrer_id)
-    try:
-        local_user = database.local_users[user_id]
-        local_user_name = local_user.user_name
-        await bot.send_message(user_id, 'В локальную базу добавлен пользователь: ' + local_user_name)
-    except:
-        # print(list(database.local_users))
-        await bot.send_message(user_id, f'Чеее вообще происходит???{(list(database.local_users))}')
+    # try:
+    #     local_user = database.local_users[user_id]
+    #     local_user_name = local_user.user_name
+    #     await bot.send_message(user_id, 'В локальную базу добавлен пользователь: ' + local_user_name)
+    # except:
+    #     # print(list(database.local_users))
+    #     await bot.send_message(user_id, f'Чеее вообще происходит???{(list(database.local_users))}')
 
 
 
