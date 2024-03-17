@@ -23,7 +23,7 @@ class User(Base):
     user_name = Column(String, index=True)
     referral_link = Column(String, unique=True)
     referrer_id = Column(Integer, ForeignKey("users.user_id"))
-    registration_time = Column(DATETIME)
+    registration_time = Column(DateTime)
     level = Column(Integer, index=True)
     real_estate = Column(FLOAT)
     grow_wallet = Column(FLOAT)
@@ -36,7 +36,7 @@ class User(Base):
     current_leader_id = Column(Integer, index=True)
     referrers = Column(String)
     referrals = Column(String)
-    bonus_cd_time = Column ( String)
+    bonus_cd_time = Column ( DateTime)
     # referrer = relationship("User", back_populates="referred")
     # referrals = relationship("User", 
     #                         secondary=user_referrer, 
@@ -57,8 +57,9 @@ class User(Base):
 engine = create_engine("sqlite:///bot.db")
 Base.metadata.create_all(bind=engine)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+database.db = database.SessionLocal()
 
-async def get_or_create_user(db, user_id, user_name, referral_link, referrer_id):   # user = await db.query(User).filter(User.id == user_id).first()
+async def get_or_create_user( user_id, user_name, referral_link, referrer_id, db=database.db,):   # user = await db.query(User).filter(User.id == user_id).first()
     user = db.query(User).filter(User.user_id == user_id).first()
     if not user:
         now = datetime.now()
@@ -75,21 +76,40 @@ async def get_or_create_user(db, user_id, user_name, referral_link, referrer_id)
         #     if referrer:
         #         user.referrer_id = referrer.user_id
         #         referrer.subscribers.append(user)
+    database.current_user = user
     return user 
 
-async def get_user(db, user_id):
-    user = db.query(User).filter(User.user_id == user_id).first()
-    return user  
+async def get_user(user_id):
+    # if database.current_user == {}:
+    db = database.SessionLocal()
+    # user = database.db.query(User).filter(User.user_id == user_id).first()
+    #     database.current_user = user
+    # else:
+    #     user = database.current_user
+    # db = database.SessionLocal()
 
-async def user_info(db, user_id):
-    user = database.current_user
-    user_info = (f"\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{user.registration_time}" 
+    current_user = db.query(User).filter(User.user_id == user_id).first()
+    return current_user        
+
+    # user = db.query(User).filter(User.user_id == user_id).first()
+    # database.current_user = user
+    # return user  
+
+async def user_info(user_id):
+    user = await get_user(user_id)
+    registration_time = user.registration_time.strftime('%Y-%m-%d %H:%M:%S')
+    bonus_cd_time = user.bonus_cd_time.strftime('%Y-%m-%d %H:%M:%S')
+    user_info = (f"\nuser_id: {user.user_id}\nuser_name: {user.user_name}\nreferral_link:\n{user.referral_link}\nreferrer_id: {user.referrer_id}\nregistration_time:\n{registration_time}" 
     + f"\nlevel: {user.level}\nreal_estate: {user.real_estate}\ngrow_wallet: {user.grow_wallet}\nliquid_wallet: {user.liquid_wallet}\nturnover: {user.turnover}\nsales: {user.sales}\
     \nbonuses_available: {user.bonuses_available}\nbonuses_gotten: {user.bonuses_gotten}\nguide_stage: {user.guide_stage}\ncurrent_leader_id: {user.current_leader_id}\nreferrers: {user.referrers}"
-    + f'\nbonus_cd_time:\n{user.bonus_cd_time}')
+    + f'\nbonus_cd_time:\n{bonus_cd_time}')
     return user_info
 #+f'{user.registration_time}'
 
+# async def get_level_by_id(db, user_id):
+#     user = get_user(db, user_id)
+#     return user.level
+
 
 current_user = {}
-users = {}
+# users = {}

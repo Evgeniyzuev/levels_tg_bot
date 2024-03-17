@@ -38,10 +38,9 @@ async def start_handler(message: Message , command: CommandObject):
         finally:
             pass        
 
-    if utils.get_user() == False:
-        referral_link = await create_start_link(bot,str(message.from_user.id), encode=True)
-        utils.add_user(user_id, user_name, referral_link, referrer_id)
-
+    # if utils.get_user() == False:
+    #     referral_link = await create_start_link(bot,str(message.from_user.id), encode=True)
+    #     utils.add_user(user_id, user_name, referral_link, referrer_id)
 
     try:
         await bot.send_message(user_id, text=f'ВНИМАНИЕ❗️❗️❗️\nБот работает в тестовом режиме\n❗️Никаких выплат не будет до релиза\nРепосты делайте на свой страх и риск')
@@ -52,26 +51,26 @@ async def start_handler(message: Message , command: CommandObject):
 
  # TRRRRRYYYY DATABASE
     # TRRRRRYYYY DATABASE
-    db = database.SessionLocal()
+    
 
     try:
-        referrer = await database.get_user(db, referrer_id)
+        referrer = await utils.get_user(referrer_id)
         # if user.referrer:
         #         user.referrer.referred.append(user)
-        #         # await notify_referrer(db, user.referrer, user)
-        db.commit()
+        #         # await notify_referrer(database.db, user.referrer, user)
+        database.db.commit()
         await message.answer(f"Вас пригласил {referrer.user_name}")
     except:
         await message.answer(f"Кто вас пригласил?")
 
     referral_link = await create_start_link(bot,str(message.from_user.id), encode=True)
-    user = await  database.get_or_create_user(db, message.from_user.id, message.from_user.username, referral_link, referrer_id)
-    database.current_user = user
-    # user =await database.get_user (db, message.from_user.id) 
+    user = await  database.get_or_create_user( message.from_user.id, message.from_user.username, referral_link, referrer_id, database.db,)
+    
+    # user =await utils.get_user (database.db, message.from_user.id) 
 
 
     # Просто пестня. Оно работает!
-    user_info_text = await database.user_info(db, user_id)
+    user_info_text = await database.user_info(user_id)
     await message.answer(user_info_text)
     await utils.start_guide_stages(user_id)
 
@@ -84,6 +83,7 @@ async def start_handler(message: Message):
         await bot.send_message(user_id, f"{user_name}, привет!\nВсегда рад видеть! 🤗")
     finally:
         pass
+
     await utils.start_guide_stages(user_id)
 
 
@@ -93,19 +93,20 @@ async def start_handler(message: Message):
 async def process_open_bonus_button(callback_query: types.CallbackQuery): 
     user_id = callback_query.from_user.id
     user_name = callback_query.from_user.full_name
-    bonuses_gotten = utils.get_user().bonuses_gotten
-    bonuses_available = utils.get_user().bonuses_available
+    user = await utils.get_user(user_id)
+    bonuses_gotten = user.bonuses_gotten
+    bonuses_available = user.bonuses_available
     if bonuses_available > 0:
         if bonuses_gotten-bonuses_available == 1:
             try:
-                current_leader_id = utils.get_user().current_leader_id
+                current_leader_id = user.current_leader_id
                 await bot.send_message(current_leader_id, text= f"Ваш реферал: {user_name}(ID: {user_id}) открыл второй бонус.", reply_markup=kb.get_and_open_bonus_button)
             except:
                 await bot.send_message(user_id, text="не получилось")   
     await utils.open_bonus(user_id)
-    if utils.get_user().guide_stage == 1:
+    if user.guide_stage == 1:
         await utils.start_guide2(user_id)  
-    elif utils.get_user().guide_stage == 3:
+    elif user.guide_stage == 3:
         await utils.start_guide4(user_id)
 
 # Нажатие кнопки получать бонус за реферала
@@ -118,20 +119,19 @@ async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
 
 @dp.callback_query(F.data == "check_subscribe_button")
 async def check_subs(callback_query: types.CallbackQuery):
-
         user_id = callback_query.from_user.id
         await utils.start_guide3(user_id)    
     
 @dp.callback_query(F.data == "no_subscribtion")
 async def check_subs(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
-    if utils.get_user().guide_stage == 2:
+    if database.current_user.guide_stage == 2:
         await utils.start_guide3_nosub(user_id) 
 
 @dp.callback_query(F.data == "check_done_button")
 async def check_done(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
-    if utils.get_user().guide_stage == 3:
+    if database.current_user.guide_stage == 3:
         await utils.start_guide3_1(user_id)
 
 
