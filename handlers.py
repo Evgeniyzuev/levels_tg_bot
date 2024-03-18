@@ -134,7 +134,7 @@ async def process_up_level(callback_query: types.CallbackQuery):
     if user.level < current_leader.level:
         await utils.up_level(user_id)
     else:
-        await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать лидера\nВкладка партнеры\nНаставники доступны:")
+        await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать Лида\nВкладка партнеры\nНаставники доступны:")
 
 @dp.callback_query(F.data == "add_balance") 
 async def process_add_balance(callback_query: types.CallbackQuery):

@@ -98,11 +98,14 @@ async def get_user(user_id):
         return  current_user
     except:
     # if not current_user :
-        await bot.send_message(user_id,"get_user: выгружаю юзера из даты базы")
+        # await bot.send_message(user_id,"get_user: Пользователь ищем")
         # database.current_user = db.query(User).filter(User.user_id == user_id).first()
-        database.local_users[user_id] = db.query(User).filter(User.user_id == user_id).first()
-        user = database.local_users[user_id]  
-        return  user
+        try:
+            user = db.query(User).filter(User.user_id == user_id).first()
+            database.local_users[user_id] = user.current_leader_id
+            return  user
+        except:
+            await bot.send_message(user_id, 'user not found') 
     # else:
             
 

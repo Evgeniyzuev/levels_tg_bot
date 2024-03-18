@@ -77,17 +77,15 @@ async def up_level(user_id):
     if gamma > 0:
         # await bot.send_message(user_id,  f'gamma: {gamma}, gamma2: {(math.ceil(gamma/100)*100)}')
         database.gamma = math.ceil(gamma/100)*100
-        await bot.send_message(user_id, f'Следующий уровень: {next_level}\n\nRestate: {restate_require} руб\nСпасибо Лиду: {lead_grace} руб' +'\n\n\
-            Баланс: '+ '%.2f' %(balance) + " руб"+ f'\n\nПополните баланс на {database.gamma} руб', reply_markup=kb.add_balance)
+        await bot.send_message(user_id, f'Следующий уровень: {next_level}\n\nRestate: {restate_require} руб\nСпасибо Лиду: {lead_grace} руб\
+                               ' +'\n\n\Баланс: '+ '%.2f' %(balance) + " руб"+ f'\n\nПополните баланс на {database.gamma} руб', reply_markup=kb.add_balance)
     else:
         await bot.send_message(user_id, f'На следующий уровень: {next_level}\nМожно перейти с Restate: {restate_require} руб\nБлагодарность Лиду: {lead_grace} руб' +'\n\n\
             Баланс: '+ '%.2f' %(balance) + " руб", reply_markup=kb.up_me)
 
 async def add_balance(user_id):
     # user = database.local_users[user_id] 
-    await bot.send_message(user_id, f'Пополнение баланса:\n\n + {database.gamma} рублей\n\nТинькофф СБП: +7(996)893-15-12\n\nТелеграм TON:\nUQAegScNLWtuhtDlBd2oq5Utjkm_W_NSmWlBvYU83z65uMu7\
-        \n\nПосле перевода нажмите кнопку готово\nИ отправьте боту чек\n\nПлатежи пока подтверждает кожан... хм... человек\nЕсли он не уложится в 6 часов 😴\nМы добавим вам на счёт\
-                           10% от суммы перевода (вычтем у него из зарплаты) ', reply_markup=kb.add_balance_ready)
+    await bot.send_message(user_id, f'Пополнение баланса:\n\n + {database.gamma} рублей'+ texts.add_balance_text, reply_markup=kb.add_balance_ready)
 
 async def add_balance_ready(user_id):
     user = database.local_users[user_id]
@@ -99,15 +97,15 @@ async def add_balance_ready(user_id):
 
 async def up_me(user_id):
     user = database.local_users[user_id]
+    current_leader_id = user.current_leader_id
+    current_leader = await database.get_user(current_leader_id)
     restate_require = database.ubicoin * (2 ** (user.level+1))
-    lead_grace = database.ubicoin * (2 ** (user.level+1))
-    # balance = user.restate + user.grow_wallet + user.liquid_wallet
-    # if balance > (lead_grace+restate_require):
-    #    
+    lead_grace = database.ubicoin * (2 ** (user.level+1)) 
     if (restate_require-user.restate) > 0:
        gamma = lead_grace-(user.grow_wallet + user.liquid_wallet-(restate_require-user.restate)) 
     else:  
         gamma = lead_grace-(user.grow_wallet + user.liquid_wallet)
+
     if gamma > 0:
         await bot.send_message(user_id,  f'Недостаточно средств: {gamma} рублей')
     else:
@@ -119,9 +117,15 @@ async def up_me(user_id):
             user.liquid_wallet+=user.grow_wallet
             user.grow_wallet=0
         user.level += 1
+        current_leader.grow_wallet+=lead_grace
         db = database.SessionLocal()
-        record = db.merge(database.User( )) 
-    await bot.send_message(user_id, f'Ваш уровень: {user.level}\n')
+        record = db.merge(database.User( ))
+        sum = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet
+        text0 = "\n💳 Баланс: " + ( '%.2f' %(sum)) + " рублей" 
+
+        await bot.send_message(user_id, f'Уровень повышен 🔼: {user.level}\n')
+        await bot.send_message(current_leader_id, f'Входящий: +{lead_grace} рублей'+ text0 +f'\n\nВаш реферал {user.user_name}:\nlvl {(user.level-1)} 🔼 lvl {user.level}\
+                               \n\n*напоминание: когда ваши рефералы не могут больше взять у вас следующий уровень, они уходят к другим наставникам')
 
 
 async def get_bonuses_available(user_id):
@@ -184,11 +188,11 @@ async def get_balance(user_id):
     # else:     
         user = await get_user(user_id)
 
-        text1 = "\n\n1️⃣ Restate(25%):             " + '%.2f' %(user.restate) + ' рублей'
+        text1 = "\n\n1️⃣ Restate(25%):          " + '%.2f' %(user.restate) + ' рублей'
         text2 = "\n2️⃣ Grow(20%):               " + '%.2f' %(user.grow_wallet) + ' рублей'
-        text3 = "\n3️⃣ Liquid(0%):                  " + '%.2f' %(user.liquid_wallet) + ' рублей'
+        text3 = "\n3️⃣ Liquid(0%):               " + '%.2f' %(user.liquid_wallet) + ' рублей'
         sum = user.restate + user.grow_wallet + user.liquid_wallet
-        text0 = "💳 Баланс:                       " + ( '%.2f' %(sum)) + " рублей"
+        text0 = "💳 Баланс:                    " + ( '%.2f' %(sum)) + " рублей"
         balance = text0 + text1 + text2 + text3 + texts.accounts_about_text
         await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\Clone_git\levels_tg_bot\BASE_MEDIA\pics\\restate_grow_liquid.jpg'), caption=f'{balance}', reply_markup=kb.balance_markup)
       
@@ -315,7 +319,7 @@ async def start_guide3(user_id):
                 await asyncio.sleep(2)
                 referral_link = user.referral_link 
                 await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'),\
-                            caption= texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
+                            caption= texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
                 await asyncio.sleep(2)
                 await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
             else:
@@ -335,7 +339,7 @@ async def start_guide3_nosub(user_id):
     await asyncio.sleep(2)
     referral_link = user.referral_link 
     await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'),\
-                caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
+                caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
     await asyncio.sleep(2)
     await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
     db = database.SessionLocal()
