@@ -20,7 +20,7 @@ from states import Gen
 @dp.message(CommandStart(deep_link=True))
 async def start_handler( callback_query: types.CallbackQuery, command: CommandObject): #message: Message,
     # user_id = callback_query.message.from_user.id
-    user_name = callback_query.from_user.username
+    user_name = callback_query.from_user.full_name
     user_id = callback_query.from_user.id
     try:
         await bot.send_message(user_id, f"{user_name}, привет! Рад видеть! 🤗")
@@ -40,11 +40,8 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
         finally:
             pass        
 
-    try:
-        await bot.send_message(user_id, text=f'ВНИМАНИЕ❗️❗️❗️\nБот работает в тестовом режиме\n❗️Никаких выплат не будет до релиза\nРепосты делайте на свой страх и риск')
-        await bot.send_message(referrer_id, text= f"По вашей ссылке зашел пользователь:\n{user_name}\nВы получите бонус 🎁 когда пользователь откроет два бонуса.")
-    finally:
-        pass 
+    await bot.send_message(user_id, text=f'ВНИМАНИЕ❗️❗️❗️\nБот работает в тестовом режиме\n❗️Никаких выплат не будет до релиза\nРепосты делайте на свой страх и риск')
+
 
 
  # TRRRRRYYYY DATABASE
@@ -63,6 +60,11 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
 
     referral_link = await create_start_link(bot,str(user_id), encode=True)
     user = await database.get_or_create_user(user_id, user_name, referral_link, referrer_id)
+    if user.bonuses_gotten < 2 :
+        try:
+            await bot.send_message(referrer_id, text= f"По вашей ссылке зашел пользователь:\n{user_name}\nВы получите бонус 🎁 когда пользователь откроет два бонуса.")
+        finally:
+            pass 
     # try:
     #     local_user = database.local_users[user_id]
     #     local_user_name = local_user.user_name
@@ -121,6 +123,33 @@ async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
     await bot.edit_message_reply_markup(user_id, message_id=callback_query.message.message_id, reply_markup=None )
     await utils.add_bonus(user_id)
     await bot.send_message(user_id, text="+🎁 Бонус получен!\nОткройте его на вкладке Бонусы")
+
+
+@dp.callback_query(F.data == "up_level")
+async def process_up_level(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    user = database.local_users[user_id]
+    current_leader_id = user.current_leader_id
+    current_leader = database.local_users[current_leader_id]
+    if user.level < current_leader.level:
+        await utils.up_level(user_id)
+    else:
+        await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать лидера\nВкладка партнеры\nНаставники доступны:")
+
+@dp.callback_query(F.data == "add_balance") 
+async def process_add_balance(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    await utils.add_balance(user_id)
+
+@dp.callback_query(F.data == "add_balance_ready") 
+async def process_add_balance_ready(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    await utils.add_balance_ready(user_id)
+
+@dp.callback_query(F.data == "up_me") 
+async def process_add_balance(callback_query: types.CallbackQuery):
+    user_id = callback_query.from_user.id
+    await utils.up_me(user_id)
 
 @dp.callback_query(F.data == "check_subscribe_button")
 async def check_subs(callback_query: types.CallbackQuery):
