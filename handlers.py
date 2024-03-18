@@ -129,12 +129,16 @@ async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
 async def process_up_level(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
     user = database.local_users[user_id]
-    current_leader_id = user.current_leader_id
-    current_leader = database.local_users[current_leader_id]
-    if user.level < current_leader.level:
-        await utils.up_level(user_id)
-    else:
-        await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать Лида\nВкладка партнеры\nНаставники доступны:")
+    try:
+        current_leader_id = user.current_leader_id
+        current_leader = database.local_users[current_leader_id]
+        if user.level < current_leader.level:
+            await utils.up_level(user_id)
+        else:
+            await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать Лида\nВкладка партнеры\nНаставники доступны:")
+    except:
+        await bot.send_message(user_id, 'Лид не найден')
+
 
 @dp.callback_query(F.data == "add_balance") 
 async def process_add_balance(callback_query: types.CallbackQuery):

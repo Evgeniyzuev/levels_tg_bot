@@ -1,7 +1,7 @@
 # from database import local_users
 # user = local_users[user_id]
 emoji = '🔙🔴🟠🟡🟢🔵🟣🟤💲🔁💱♥️🔔🔜➡️⬅️🔼🔽↕️↔️⬆️⬇️↗️↘️↙️↖️🆓🆕🔢🔡💤✅❗️❓💵💳🔥😁😍🥰😎😱🤗\
-    📍💧❓🤖💸🏡🪪😱🤑😂😜😁😴'
+    📍💧❓🤖🌱💸🏡🪪😱🤑😂😜😁😴'
 
 ton = 'TON:\nUQAegScNLWtuhtDlBd2oq5Utjkm_W_NSmWlBvYU83z65uMu7'
 

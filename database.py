@@ -62,10 +62,12 @@ database.db = database.SessionLocal()
 async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):   # user = await db.query(User).filter(User.id == user_id).first()
     db=database.db
     user = db.query(User).filter(User.user_id == user_id).first()
+    # 
     if not user:
         await bot.send_message(user_id, "пользователь не найден")
         now = datetime.now()
-        referrers_text = f'{referrer_id}'
+        referrers_text = ''
+        referrers_text += f'{referrer_id}'
         if user_id == 6251757715: level = 100
         else: level = 0
         user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=now, level=level,
@@ -84,7 +86,14 @@ async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):  
         #     if referrer:
         #         user.referrer_id = referrer.user_id
         #         referrer.subscribers.append(user)
-    # await bot.send_message(user_id, f"Добавлен {user.user_name}\n с балансом {user.restate}")    
+    # await bot.send_message(user_id, f"Добавлен {user.user_name}\n с балансом {user.restate}")
+    try: 
+        current_leader = await database.get_user(referrer_id)
+        text = (referrer_id +': ' + current_leader.user_name + 'lvl: ' + current_leader.level + '\n')
+        user.referrers += text 
+    except: 
+        text = f'Ваш лид: {referrer_id} не найден в базе'
+        await bot.send_message(user_id, text)
     database.local_users[user_id] = user
     local_user = database.local_users[user_id]
     await bot.send_message(user_id, f"Добавлен {local_user.user_name}\nс балансом {local_user.restate}")  

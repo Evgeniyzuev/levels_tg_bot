@@ -18,6 +18,16 @@ subscribe_buttons2 = [[InlineKeyboardButton(text="Подписаться", url='
 share_button = [[InlineKeyboardButton(text="🔗 Поделиться", callback_data="share_button", one_time_keyboard = True)]]
 # transfer_button = [[InlineKeyboardButton(text=" Перевод", callback_data="transfer", one_time_keyboard = True)]]
 # pay_button = [[InlineKeyboardButton(text=" Оплата", callback_data="pay", one_time_keyboard = True)]]
+liquid_wallet_up = InlineKeyboardButton(text="💧🔼", callback_data="liquid_wallet_up", one_time_keyboard = True)
+liquid_wallet_down = InlineKeyboardButton(text="💧🔽", callback_data="liquid_wallet_down", one_time_keyboard = True)
+grow_wallet_up = InlineKeyboardButton(text="🌱🔼", callback_data="grow_wallet_up", one_time_keyboard = True)
+grow_wallet_down = InlineKeyboardButton(text="🌱🔽", callback_data="grow_wallet_down", one_time_keyboard = True)
+restate_up = InlineKeyboardButton(text="🏡🔼", callback_data="restate_up", one_time_keyboard = True)
+restate_down = InlineKeyboardButton(text="🏡🔽", callback_data="restate_down", one_time_keyboard = True)
+
+
+
+
 
 profile_buttons = [menu_button]
 resources_buttons = [menu_button]
@@ -26,7 +36,8 @@ balance_buttons = [menu_button]
 partners_buttons = [menu_button] 
 info_buttons = [menu_button]
 bonus_buttons = [bonus_button, profile_button,]
-
+balance_control_buttons = [[restate_up, grow_wallet_up, liquid_wallet_up], [restate_down, grow_wallet_down, liquid_wallet_down]]
+# balance_control_buttons2 = [restate_down, grow_wallet_down, liquid_wallet_down]
 
 
 # menu_markup = InlineKeyboardMarkup(inline_keyboard=menu_buttons, one_time_keyboard = True, resize_keyboard=True)
@@ -38,6 +49,8 @@ balance_markup = InlineKeyboardMarkup(inline_keyboard=balance_buttons, one_time_
 partners_markup = InlineKeyboardMarkup(inline_keyboard=partners_buttons, one_time_keyboard = True)
 bonuses_markup = InlineKeyboardMarkup(inline_keyboard=bonus_buttons, one_time_keyboard = True)
 info_markup = InlineKeyboardMarkup(inline_keyboard=info_buttons, one_time_keyboard = True)
+balance_control_markup = InlineKeyboardMarkup(inline_keyboard=balance_control_buttons, one_time_keyboard = True) # one_time_keyboard = True, 
+# balance_control_markup = InlineKeyboardMarkup(inline_keyboard=balance_control_buttons, one_time_keyboard = True) 
 
 # single button markups
 bonus_button = InlineKeyboardMarkup(inline_keyboard=[bonus_button], one_time_keyboard = True)
