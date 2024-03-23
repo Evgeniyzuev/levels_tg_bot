@@ -9,9 +9,9 @@ bonus_button = [InlineKeyboardButton(text="🎁 Открыть Бонус", call
 up_level = [InlineKeyboardButton(text="🔼 Поднять уровень", callback_data="up_level", one_time_keyboard = True)]
 up_me = [InlineKeyboardButton(text="🔼 Поднять сейчас", callback_data="up_me", one_time_keyboard = True)]
 # up_me = [InlineKeyboardButton(text="🔼 Поднять сейчас", callback_data="up_me", one_time_keyboard = True)]
-add_balance = [InlineKeyboardButton(text="🔼 Пополнить баланс", callback_data="add_balance", one_time_keyboard = True)]
+add_grow = [InlineKeyboardButton(text="🔼 Пополнить баланс", callback_data="add_grow", one_time_keyboard = True)]
 add_balance_ready = [InlineKeyboardButton(text="Перевод отправлен", callback_data="add_balance_ready", one_time_keyboard = True)]
-get_and_open_bonus_button = [InlineKeyboardButton(text="🎁 Открыть Бонус", callback_data="get_and_open_bonus", one_time_keyboard = True)]
+get_and_open_bonus_button = [InlineKeyboardButton(text="🎁 Получить Бонус", callback_data="get_and_open_bonus", one_time_keyboard = True)]
 check_done_button = [[InlineKeyboardButton(text="Готово!", callback_data="check_done_button", one_time_keyboard = True)]]
 subscribe_buttons = [[InlineKeyboardButton(text="Подписаться", url='https://t.me/Levels_up')],[InlineKeyboardButton(text="Готово!", callback_data="check_subscribe_button", one_time_keyboard = True)]]
 subscribe_buttons2 = [[InlineKeyboardButton(text="Подписаться", url='https://t.me/Levels_up')],[InlineKeyboardButton(text="Готово!", callback_data="check_subscribe_button", one_time_keyboard = True)],[InlineKeyboardButton(text="Продолжить без бонуса 🚫", callback_data="no_subscribtion", one_time_keyboard = True)]]
@@ -24,6 +24,10 @@ grow_wallet_up = InlineKeyboardButton(text="🌱🔼", callback_data="grow_walle
 grow_wallet_down = InlineKeyboardButton(text="🌱🔽", callback_data="grow_wallet_down", one_time_keyboard = True)
 restate_up = InlineKeyboardButton(text="🏡🔼", callback_data="restate_up", one_time_keyboard = True)
 restate_down = InlineKeyboardButton(text="🏡🔽", callback_data="restate_down", one_time_keyboard = True)
+admin_confirm_payment = InlineKeyboardButton(text="Деньги вижу", callback_data="admin_confirm_payment", one_time_keyboard = True)
+check_user_payment = InlineKeyboardButton(text="🏡🔽", callback_data="check_user_payment", one_time_keyboard = True)
+admin_change_amount_payment = InlineKeyboardButton(text="🏡🔽", callback_data="admin_change_amount_payment", one_time_keyboard = True)
+changed_amount_payment_confirm = InlineKeyboardButton(text="🏡🔽", callback_data="changed_amount_payment_confirm", one_time_keyboard = True)
 
 
 
@@ -57,11 +61,15 @@ bonus_button = InlineKeyboardMarkup(inline_keyboard=[bonus_button], one_time_key
 get_and_open_bonus_button = InlineKeyboardMarkup(inline_keyboard=[get_and_open_bonus_button], one_time_keyboard = True)
 check_done_button = InlineKeyboardMarkup(inline_keyboard=check_done_button, one_time_keyboard = True)
 subscribe_buttons = InlineKeyboardMarkup(inline_keyboard=subscribe_buttons, one_time_keyboard = True)
+admin_confirm_payment = InlineKeyboardMarkup(inline_keyboard=[[admin_confirm_payment]], one_time_keyboard = True)
+admin_change_amount_payment = InlineKeyboardMarkup(inline_keyboard=[[admin_change_amount_payment]], one_time_keyboard = True)
+changed_amount_payment_confirm = InlineKeyboardMarkup(inline_keyboard=[[changed_amount_payment_confirm]], one_time_keyboard = True)
+check_user_payment = InlineKeyboardMarkup(inline_keyboard=[[check_user_payment]], one_time_keyboard = True)
 # no subscribe button markup
 subscribe_buttons2 = InlineKeyboardMarkup(inline_keyboard=subscribe_buttons2, one_time_keyboard = True)
 share_button = InlineKeyboardMarkup(inline_keyboard=share_button)
 up_me = InlineKeyboardMarkup(inline_keyboard=[up_me]) 
-add_balance = InlineKeyboardMarkup(inline_keyboard=[add_balance])
+add_grow = InlineKeyboardMarkup(inline_keyboard=[add_grow])
 add_balance_ready = InlineKeyboardMarkup(inline_keyboard=[add_balance_ready])
 # transfer_button = InlineKeyboardMarkup(inline_keyboard=transfer_button)
 # pay_button = InlineKeyboardMarkup(inline_keyboard=pay_button)
