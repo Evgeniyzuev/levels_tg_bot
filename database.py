@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 
 
 
-engine = create_engine("sqlite:///bot.db")
+engine = create_engine("sqlite:///data/bot.db")
 Base = declarative_base()
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
