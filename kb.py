@@ -19,15 +19,15 @@ share_button = [[InlineKeyboardButton(text="🔗 Поделиться", callback
 # transfer_button = [[InlineKeyboardButton(text=" Перевод", callback_data="transfer", one_time_keyboard = True)]]
 # pay_button = [[InlineKeyboardButton(text=" Оплата", callback_data="pay", one_time_keyboard = True)]]
 liquid_wallet_up = InlineKeyboardButton(text="💧🔼", callback_data="liquid_wallet_up", one_time_keyboard = True)
-liquid_wallet_down = InlineKeyboardButton(text="💧🔽", callback_data="liquid_wallet_down", one_time_keyboard = True)
+liquid_wallet_down = InlineKeyboardButton(text="💧🔻", callback_data="liquid_wallet_down", one_time_keyboard = True)
 grow_wallet_up = InlineKeyboardButton(text="🌱🔼", callback_data="grow_wallet_up", one_time_keyboard = True)
-grow_wallet_down = InlineKeyboardButton(text="🌱🔽", callback_data="grow_wallet_down", one_time_keyboard = True)
+grow_wallet_down = InlineKeyboardButton(text="🌱🔻", callback_data="grow_wallet_down", one_time_keyboard = True)
 restate_up = InlineKeyboardButton(text="🏡🔼", callback_data="restate_up", one_time_keyboard = True)
-restate_down = InlineKeyboardButton(text="🏡🔽", callback_data="restate_down", one_time_keyboard = True)
+restate_down = InlineKeyboardButton(text="🏡🔻", callback_data="restate_down", one_time_keyboard = True)
 admin_confirm_payment = InlineKeyboardButton(text="Деньги вижу", callback_data="admin_confirm_payment", one_time_keyboard = True)
-check_user_payment = InlineKeyboardButton(text="🏡🔽", callback_data="check_user_payment", one_time_keyboard = True)
-admin_change_amount_payment = InlineKeyboardButton(text="🏡🔽", callback_data="admin_change_amount_payment", one_time_keyboard = True)
-changed_amount_payment_confirm = InlineKeyboardButton(text="🏡🔽", callback_data="changed_amount_payment_confirm", one_time_keyboard = True)
+check_user_payment = InlineKeyboardButton(text="Проверить платеж", callback_data="check_user_payment", one_time_keyboard = True)
+admin_change_amount_payment = InlineKeyboardButton(text="Изменить сумму платежа", callback_data="admin_change_amount_payment", one_time_keyboard = True)
+changed_amount_payment_confirm = InlineKeyboardButton(text="Подтвердить сумму платежа", callback_data="changed_amount_payment_confirm", one_time_keyboard = True)
 
 
 
