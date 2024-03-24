@@ -58,19 +58,11 @@ async def up_level(user_id):
 
 # TODO Создать очередь платежей юзера на проверку. Тогда это не надо:(перенести на предыдущий шаг: if  database.payment_to_check[user_id] != 0:)
 async def add_balance_ready(user_id):
-    # try:
-    #     if  database.payment_to_check[user_id] != 0:
-    #         await bot.send_message(user_id, f'Предыдущий платеж еще в обработке. Для мгновенного подтверждения выбирайте автоматические способы оплаты') 
-    #     else:
-    #         database.payment_to_check=database.gamma[user_id]
-    #         await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
-    #         await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
-    #         await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте чек для ускорения') 
-    # except:
+
         database.payment_to_check=database.gamma[user_id]
         await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
         await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
-        await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте чек для ускорения')
+        await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте боту чек 📎↘️\nили подтвердите номер телефона')
 
     
 
