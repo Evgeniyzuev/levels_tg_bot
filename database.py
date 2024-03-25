@@ -54,23 +54,25 @@ Base.metadata.create_all(bind=engine)
 
 async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):   # user = await db.query(User).filter(User.id == user_id).first()
 
-    with Session() as session:
+    with Session(expire_on_commit=False) as session:
         user = session.query(User).filter(User.user_id == user_id).first()
-        await bot.send_message(user_id, "пользователь загружен")
-    # 
+        # await bot.send_message(user_id, "пользователь загружен")
+        session.close()
     if not user:
-        await bot.send_message(user_id, "регистрация нового пользователя")
-        now = datetime.now()
-        referrers_text = ''
-        referrers_text += f'{referrer_id}'
-        if user_id == 6251757715: level = 100
-        else: level = 0
-        user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=now, level=level,
-            restate=0, grow_wallet=0, liquid_wallet=0, turnover=0, sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0,
-            current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = now 
-                  )
-        session.add(user)
-        session.commit()
+        with Session(expire_on_commit=False) as session:
+            # await bot.send_message(user_id, "регистрация нового пользователя")
+            now = datetime.now()
+            referrers_text = ''
+            referrers_text += f'{referrer_id}'
+            if user_id == 6251757715: level = 100
+            else: level = 0
+            user = User(user_id=user_id, user_name=user_name, referral_link=referral_link, referrer_id=referrer_id, registration_time=now, level=level,
+                restate=0, grow_wallet=0, liquid_wallet=0, turnover=0, sales=0, bonuses_available=0, bonuses_gotten=0, guide_stage=0,
+                current_leader_id=referrer_id, referrers=referrers_text, referrals = '', bonus_cd_time = now 
+                    )
+            session.add(user)
+            session.commit()
+
         # db.close()
         # if referrer_id:
         #     # referrer = await db.query(User).filter(User.id == referrer_id).first()
@@ -88,7 +90,7 @@ async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):  
         await bot.send_message(user_id, text)
     # database.local_users[user_id] = user
     # local_user = database.local_users[user_id]
-    await bot.send_message(user_id, f"Добавлен {user.user_name}\nс балансом {user.restate}")  
+    # await bot.send_message(user_id, f"Добавлен {user.user_name}\nс балансом {user.restate}")  
     return user 
 
 async def get_user(user_id):
@@ -127,4 +129,5 @@ ubicoin = 250
 gamma = {}
 payment_to_check = {}
 payment_to_check_user_id = 0
+payment_to_check_amount = 0
 # users = {}

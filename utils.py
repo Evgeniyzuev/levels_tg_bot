@@ -56,19 +56,18 @@ async def up_level(user_id):
 
 
 
-# TODO Создать очередь платежей юзера на проверку. Тогда это не надо:(перенести на предыдущий шаг: if  database.payment_to_check[user_id] != 0:)
-async def add_balance_ready(user_id):
-
-        database.payment_to_check=database.gamma[user_id]
-        await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
-        await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
-        await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте боту чек 📎↘️\nили подтвердите номер телефона')
+# # TODO Создать очередь платежей юзера на проверку. Тогда это не надо:(перенести на предыдущий шаг: if  database.payment_to_check[user_id] != 0:)
+# async def add_balance_ready(user_id):
+#         database.payment_to_check=database.gamma[user_id]
+#         await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
+#         await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
+#         await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте боту чек 📎↘️') #\nили Имя Отчество и первую букву фамилии отправителя и последние 4 цифры карты , например: (Иван Иванович И. 7728)
 
     
 
 async def up_me(user_id):
-    with database.Session() as session:
-        user = session.query(User).filter(User.user_id == user_id).first()
+    # with database.Session() as session:
+        user = await database.get_user(user_id)
         current_leader_id = user.current_leader_id
         current_leader = await database.get_user(current_leader_id)
         restate_require = database.ubicoin * (2 ** (user.level+1))
@@ -81,24 +80,32 @@ async def up_me(user_id):
             await bot.send_message(user_id,  f'Недостаточно средств: {database.gamma[user_id]} рублей')
         else:
             if restate_require > user.restate:
-                user.grow_wallet-=(restate_require-user.restate)
-                user.restate=restate_require
-            user.grow_wallet-=lead_grace 
-            user.turnover+=lead_grace
+                # user.grow_wallet-=(restate_require-user.restate)
+                await add_grow(user_id, -restate_require+user.restate)
+                # user.restate=restate_require
+                await add_restate(user_id, restate_require-user.restate)
+            # user.grow_wallet-=lead_grace 
+            await add_grow(user_id, -lead_grace)
+            # user.turnover+=lead_grace
+            await add_turnover(user_id, lead_grace)
             if user.grow_wallet < 0:
-                user.liquid_wallet+=user.grow_wallet
-                user.grow_wallet=0
-            user.level += 1
-            current_leader.grow_wallet+=lead_grace
-            current_leader.turnover+=lead_grace
-            current_leader.sales+=1
+                # user.liquid_wallet+=user.grow_wallet
+                await add_liquid(user_id, user.grow_wallet)
+                # user.grow_wallet=0
+                await add_grow(user_id, -user.grow_wallet)
+            # user.level += 1
+            await add_level(user_id)
+            await add_sales(current_leader_id)
+            # current_leader.grow_wallet+=lead_grace
+            await add_grow(current_leader_id, lead_grace)
+            # current_leader.turnover+=lead_grace
+            await add_turnover(current_leader_id, lead_grace)
 
-            session.commit()
             sum = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet
             text0 = "\n💳 Баланс: " + ( '%.2f' %(sum)) + " рублей" 
 
-            await bot.send_message(user_id, f'Уровень повышен 🔼: {user.level}\n')
-            await bot.send_message(current_leader_id, f'Входящий: +{lead_grace} рублей'+ text0 +f'\n\nВаш реферал {user.user_name}: {(user.level-1)} 🔼 {user.level}\
+            await bot.send_message(user_id, f'Уровень повышен 🔼: {user.level+1}\n')
+            await bot.send_message(current_leader_id, f'Входящий: +{lead_grace} рублей'+ text0 +f'\n\nВаш реферал {user.user_name}: {(user.level)} 🔼 {user.level+1}\
                                 \n\n*напоминание: Ваши рефералы могут достичь вашего уровня. Тогда они не смогут взять следующий уровень у вас. И они уйдут к другому Лиду')
 
 
@@ -159,6 +166,18 @@ async def add_turnover(user_id, amount):
     with database.Session() as session:
         user = session.query(User).filter(User.user_id == user_id).first()
         user.turnover += amount
+        session.commit()
+
+async def add_level(user_id):
+    with database.Session() as session:
+        user = session.query(User).filter(User.user_id == user_id).first()
+        user.level += 1
+        session.commit()
+
+async def add_sales(user_id):
+    with database.Session() as session:
+        user = session.query(User).filter(User.user_id == user_id).first()
+        user.sales += 1
         session.commit()
 
 

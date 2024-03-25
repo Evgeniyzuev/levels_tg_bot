@@ -8,15 +8,29 @@ import re
 
 from aiogram import types, F, Router, flags
 from aiogram.fsm.context import FSMContext
+from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message, InputFile
-from aiogram.filters import Command, CommandStart, CommandObject
+from aiogram.filters import Command, CommandStart, CommandObject, StateFilter
 from aiogram.utils.deep_linking import create_start_link, decode_payload
 from sqlalchemy.sql import func
 from aiogram.methods.get_chat import GetChat
+from aiogram.types import (
+    KeyboardButton,
+    Message,
+    ReplyKeyboardMarkup,
+    ReplyKeyboardRemove,
+)
 
 
 from misc import dp, bot
 from states import Gen
+
+
+
+#     Справочник https://t.me/aiogram/28
+# 
+#     await callback_query.answer("Как много?",reply_markup=ReplyKeyboardRemove(),)  Всплывающее сообщение и удаление клавиатуры
+
 
 # START
 # @dp.message(Command("start"))
@@ -53,12 +67,6 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
         finally:
             pass 
 
-
-
-
-    # Просто пестня. Оно работает!
-    # user_info_text = await database.user_info(user_id)
-    # await callback_query.answer(user_info_text)
     await utils.start_guide_stages(user_id)
 
 
@@ -115,21 +123,10 @@ async def process_open_bonus_button(callback_query: types.CallbackQuery): #messa
 
 #     # await bot.send_message(user_id, text="не получилось")   
 
-
-
-
-
-    # user = database.get_user(user_id)
-    # user.grow_wallet+=database.payment_to_check[user_id]
-    
-
     # database.gamma[user_id] = 0
     # database.payment_to_check[user_id] = 0
     # await bot.edit_message_reply_markup(user_id, message_id=callback_query.message.message_id, reply_markup=None )
     # await bot.send_message(user_id, text="Оплата подтверждена")
-
-
-
 
 
 
@@ -141,6 +138,8 @@ async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
     await utils.add_bonus(user_id)
     await bot.send_message(user_id, text="+🎁 Бонус получен!\nОткройте его на вкладке Бонусы")
 
+
+# проверка уровня лида
 @dp.callback_query(F.data == "up_level")
 async def process_up_level(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
@@ -152,67 +151,96 @@ async def process_up_level(callback_query: types.CallbackQuery):
         await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать Лида\nВкладка партнеры\nНаставники доступны:")
     # await bot.send_message(user_id, 'Лид не найден')
 
+# запрос пополнения для уровня
 @dp.callback_query(F.data == "up_me") 
 async def process_up_me(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
     await utils.up_me(user_id)
 
-# TODO: Ввод суммы вручную
+# Выдаёт реквизиты №1 для пополнения grow_wallet
 @dp.callback_query(F.data == "add_grow") 
 async def process_add_grow(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
-    await bot.send_message(user_id, f'Пополнение grow_wallet:\n\n + {database.gamma[user_id]} рублей'+ texts.add_grow_text, reply_markup=kb.add_balance_ready)
+    await bot.send_message(user_id, f'Пополнение grow_wallet:\n\n + {database.gamma[user_id]} рублей'+ texts.add_grow_text_1, reply_markup=kb.add_balance_ready)
 
+# Передаёт запрос на пополнение админу
 @dp.callback_query(F.data == "add_balance_ready") 
 async def process_add_balance_ready(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
-    await utils.add_balance_ready(user_id)
+    database.payment_to_check_user_id = user_id
+    await bot.edit_message_reply_markup(user_id, message_id=callback_query.message.message_id, reply_markup=None )
+    # await utils.add_balance_ready(user_id)
+    # database.payment_to_check=database.gamma[user_id]
+    await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
+    await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
+    await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте боту чек 📎↘️')
 
-# TODO: Проверка платежа. Надо спарсить user_id из сообщения и ввести сумму вручную и подтвердить
+
+class Form(StatesGroup):
+    amount = State()
+    amount_ok = State()
+    wait_check = State()
+
+
+# пополняет по кнопке admin_confirm_payment ("Деньги вижу")
 @dp.callback_query(F.data == "admin_confirm_payment")
 async def process_confirm_payment_button(callback_query: types.CallbackQuery): #message: Message, callback_query: types.CallbackQuery, 
     text = callback_query.message.text
-    # id_string = re.search(r'(?<=ID:)(.*)(?=;)', str(text))
-    # amount_string = re.search(r'(?<=:)(.*)(?=;)', str(text))
-    # user_id = int(str(id_string))
-    # amount = int(amount_string.group())
     splitted = str(text).split(';')
     user_id = splitted[1]
     amount = splitted[0]
     user_id = int(user_id)
     amount = int(amount)
-    user = await database.get_user(user_id)
-   
     await utils.add_grow(user_id, amount)
-    await utils.add_turnover(user_id, amount)
     await bot.edit_message_reply_markup(config.levels_guide_id, message_id=callback_query.message.message_id, reply_markup=None )
     await bot.send_message(user_id, f'Пополнение grow_wallet:\n + {amount} рублей' )
 
-
-
-    # TODO: Проверка платежа. Надо спарсить user_id из сообщения и ввести сумму вручную и подтвердить
+# Изменить сумму платежа вручную
 @dp.callback_query(F.data == "admin_change_amount_payment")
-async def process_confirm_payment_button(callback_query: types.CallbackQuery): #message: Message, callback_query: types.CallbackQuery, 
+async def process_confirm_payment_button(callback_query: types.CallbackQuery, state: FSMContext) -> None: #message: Message, callback_query: types.CallbackQuery, 
     text = callback_query.message.text
-    # id_string = re.search(r'(?<=ID:)(.*)(?=;)', str(text))
-    # amount_string = re.search(r'(?<=:)(.*)(?=;)', str(text))
-    # user_id = int(str(id_string))
-    # amount = int(amount_string.group())
     splitted = str(text).split(';')
     user_id = splitted[1]
-    amount = splitted[0]
     user_id = int(user_id)
-    amount = int(amount)
-    # user = await database.get_user(user_id)
-
-    # user_id = str(callback_query.message.text).split(';')
-    # amount = str(callback_query.message.text).split(';')
-  
     database.payment_to_check_user_id = user_id
-    # database.gamma[user_id] = 0
-    # database.payment_to_check[user_id] = 0
-    await bot.edit_message_reply_markup(config.levels_guide_id, message_id=callback_query.message.message_id, reply_markup=None )
-    await bot.send_message(config.levels_guide_id, "введите сумму", reply_markup=kb.changed_amount_payment_confirm )
+    await state.set_state(Form.amount)
+    # await bot.edit_message_reply_markup(config.levels_guide_id, message_id=callback_query.message.message_id, reply_markup=None )
+    # await bot.send_message(config.levels_guide_id, "введите сумму", reply_markup=kb.changed_amount_payment_confirm )
+    await callback_query.answer("Как много?",reply_markup=ReplyKeyboardRemove(),)
+
+# класс состояний
+
+
+# Ожидает ввода суммы вручную
+# @dp.callback_query(F.data == "admin_change_amount_payment")
+# async def process_confirm_payment_button(callback_query: types.CallbackQuery, state: FSMContext) -> None:
+#     await state.set_state(Form.amount)
+#     await callback_query.answer("Как много?",reply_markup=ReplyKeyboardRemove(),)
+
+# Подтвердить введенную сумму?
+@dp.message(StateFilter(Form.amount))
+async def process_amount(message: Message, state: FSMContext) -> None:
+    await state.set_state(Form.amount_ok)
+    await state.update_data(amount=message.text)
+    database.payment_to_check_amount = int(message.text)
+    await message.answer(f'Пополнение grow_wallet:\n + {message.text} рублей\n\nUser ID: {database.payment_to_check_user_id}',reply_markup=ReplyKeyboardMarkup(
+            keyboard=[[KeyboardButton(text="Yes"),KeyboardButton(text="No"),]],resize_keyboard=True,),)
+
+# Подтвердить введенную сумму - да
+@dp.message(Form.amount_ok, F.text.casefold() == "yes")
+async def process_amount_ok(message: Message, state: FSMContext) -> None:
+    user_id = database.payment_to_check_user_id
+    amount = database.payment_to_check_amount
+    await utils.add_grow(user_id, amount)
+    await bot.send_message(user_id, f'Пополнение grow_wallet:\n + {amount} рублей' )
+    await message.answer("Готово",reply_markup=ReplyKeyboardRemove())
+
+# Отменить введенную сумму (нет)
+@dp.message(Form.amount_ok, F.text.casefold() == "no")
+async def process_amount_ok(callback_query: types.CallbackQuery, state: FSMContext) -> None:
+    await state.set_state(Form.amount)
+    await callback_query.answer("Как много?",) # reply_markup=ReplyKeyboardRemove(),
+
 
 
 

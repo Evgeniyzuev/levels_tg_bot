@@ -61,8 +61,8 @@ bonus_button = InlineKeyboardMarkup(inline_keyboard=[bonus_button], one_time_key
 get_and_open_bonus_button = InlineKeyboardMarkup(inline_keyboard=[get_and_open_bonus_button], one_time_keyboard = True)
 check_done_button = InlineKeyboardMarkup(inline_keyboard=check_done_button, one_time_keyboard = True)
 subscribe_buttons = InlineKeyboardMarkup(inline_keyboard=subscribe_buttons, one_time_keyboard = True)
-admin_confirm_payment = InlineKeyboardMarkup(inline_keyboard=[[admin_confirm_payment]], one_time_keyboard = True)
-admin_change_amount_payment = InlineKeyboardMarkup(inline_keyboard=[[admin_change_amount_payment]], one_time_keyboard = True)
+admin_confirm_payment = InlineKeyboardMarkup(inline_keyboard=[[admin_confirm_payment],[admin_change_amount_payment]], one_time_keyboard = True)
+# admin_change_amount_payment = InlineKeyboardMarkup(inline_keyboard=[[admin_change_amount_payment]], one_time_keyboard = True)
 changed_amount_payment_confirm = InlineKeyboardMarkup(inline_keyboard=[[changed_amount_payment_confirm]], one_time_keyboard = True)
 check_user_payment = InlineKeyboardMarkup(inline_keyboard=[[check_user_payment]], one_time_keyboard = True)
 # no subscribe button markup
