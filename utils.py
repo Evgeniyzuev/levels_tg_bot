@@ -87,12 +87,7 @@ async def up_me(user_id):
             # user.grow_wallet-=lead_grace 
             await add_grow(user_id, -lead_grace)
             # user.turnover+=lead_grace
-            await add_turnover(user_id, lead_grace)
-            if user.grow_wallet < 0:
-                # user.liquid_wallet+=user.grow_wallet
-                await add_liquid(user_id, user.grow_wallet)
-                # user.grow_wallet=0
-                await add_grow(user_id, -user.grow_wallet)
+            await add_turnover(user_id, lead_grace)               
             # user.level += 1
             await add_level(user_id)
             await add_sales(current_leader_id)
@@ -100,7 +95,8 @@ async def up_me(user_id):
             await add_grow(current_leader_id, lead_grace)
             # current_leader.turnover+=lead_grace
             await add_turnover(current_leader_id, lead_grace)
-
+            await if_grow_wallet_is_negative(user_id)
+                    
             sum = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet
             text0 = "\n💳 Баланс: " + ( '%.2f' %(sum)) + " рублей" 
 
@@ -137,9 +133,9 @@ async def open_bonus(user_id):
             text1 = '🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
             text2 = f"\n🎁 Бонус:         " + '%.2f' %(bonus_size) + " рублей" 
             text3 = "\n💳 Баланс:      " + ( '%.2f' %(balance_sum)) + " рублей"
-            await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'), caption=text1 + text2 + text3)
+            await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\bonus_open.jpg'), caption=text1 + text2 + text3)
         else:
-            await bot.send_video(user_id, video=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\\videos\\travolta.gif.mp4'), caption="\
+            await bot.send_video(user_id, video=types.FSInputFile('BASE_MEDIA\\videos\\travolta.gif.mp4'), caption="\
             Здесь пока ничего нет. Куда всё делось? 🤔 \n\nБонусы разыгрываются каждый день! \nМы отправим уведомление, когда придет бонус.\
                                 \n\nРекомендуем включить всплывающие уведомления в настройках бота🔔 Чтобы не пропустить.\n\n Нажимайте поделиться\n получайте бонус за каждого нового подписчика! 🎁") 
 
@@ -179,6 +175,15 @@ async def add_sales(user_id):
         user = session.query(User).filter(User.user_id == user_id).first()
         user.sales += 1
         session.commit()
+
+async def if_grow_wallet_is_negative(user_id):
+    with database.Session() as session:
+        user = session.query(User).filter(User.user_id == user_id).first()
+        if user.grow_wallet < 0:
+            # user.liquid_wallet+=user.grow_wallet
+            await add_liquid(user_id, user.grow_wallet)
+            # user.grow_wallet=0
+            await add_grow(user_id, -user.grow_wallet)
 
 
 # START Guide Stages
@@ -240,7 +245,7 @@ async def level_tub(user_id):
 
 async def balance_tub(user_id):
     balance_text = await get_balance(user_id)
-    await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\Clone_git\levels_tg_bot\BASE_MEDIA\pics\\restate_grow_liquid.jpg'), caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
+    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\\restate_grow_liquid.jpg'), caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
 
 
 async def partners_tub(user_id):
@@ -296,7 +301,7 @@ async def switch_tubs(code , user_id):
 # Guide
 # Про Уровни. Даем первый бонус. Открывайте.
 async def start_guide1(user_id):
-    await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\choose_your_level2.jpg.jpg'),caption=texts.start_guide1_text)
+    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\choose_your_level2.jpg.jpg'),caption=texts.start_guide1_text)
     await asyncio.sleep(1)
    
     with database.Session() as session:
@@ -343,7 +348,7 @@ async def start_guide3(user_id):
                     await bot.send_message(user_id, '2. Поделиться СВОЕЙ реферальной ссылкой в ТГ.')
                     await asyncio.sleep(2)
                     referral_link = user.referral_link 
-                    await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'),\
+                    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\\bonus_open.jpg'),\
                                 caption= texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
                     await asyncio.sleep(2)
                     await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
@@ -364,7 +369,7 @@ async def start_guide3_nosub(user_id):
     await bot.send_message(user_id, '2. Поделиться своей реферальной ссылкой в ТГ.')
     await asyncio.sleep(2)
     referral_link = user.referral_link 
-    await bot.send_photo(user_id, photo=types.FSInputFile('D:\Git\levels_tg_bot\levels_tg_bot\BASE_MEDIA\pics\\bonus_open.jpg'),\
+    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\bonus_open.jpg'),\
                 caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
     await asyncio.sleep(2)
 
