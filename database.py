@@ -128,6 +128,25 @@ async def user_info(user_id):
 ubicoin = 250
 gamma = {}
 payment_to_check = {}
+payout = {}
 payment_to_check_user_id = 0
 payment_to_check_amount = 0
 # users = {}
+
+# photo_ids_test = {'travolta': 'AgACAgIAAxkBAAIzSmYHUfuo0DcPGyj7mwAByCr53bpHhQACVNUxG2M7QEgzWdI_jHBtOwEAAwIAA20AAzQE',
+#               'choose_your_level': 'AgACAgIAAxkBAAIzR2YHUc6tN-UIpSbkU8YKnm_vK6klAAJT1TEbYztASFROeNiNbagBAQADAgADeQADNAQ',
+#               'bonus_open': 'AgACAgIAAxkBAAIzRGYHUV0c6mJYqY1BULMG55q-QxoCAAJR1TEbYztASA8PjnieQWONAQADAgADbQADNAQ',
+#               'restate_grow_liquid': 'AgACAgIAAxkBAAIzTWYHUjYtypF4Y7UzvnPPNR06EmB0AAJV1TEbYztASJLXNe5O_V1MAQADAgADeQADNAQ',
+#               }
+
+photo_ids_test = {'travolta': 'AgACAgIAAxkBAAIGDmYDGxT-ll44gRkr-R6sgFliUTdiAAK82TEbjsgYSHnT_47idacFAQADAgADbQADNAQ',
+              'choose_your_level': 'AgACAgIAAxkBAAIGEWYDHHDuP4C52KYM4AfaEuSkAhn-AAK12TEbjsgYSJ2Qt-Z7gxEoAQADAgADeQADNAQ',
+              'bonus_open': 'AgACAgIAAxkBAAIGFGYDHKRNtWLMvW43ReKV_YnaTR6xAALd2TEbjsgYSG5vFR38d6UcAQADAgADbQADNAQ',
+              'restate_grow_liquid': 'AgACAgIAAxkBAAIGF2YDHPPeEJ_cs7oSeqMbpycKs4ULAALk2TEbjsgYSITh8mSocqlbAQADAgADeQADNAQ',
+              }
+
+# photo_unique_ids = {'travolta': 'AQADVNUxG2M7QEhy',
+#               'choose_your_level': 'AQADU9UxG2M7QEh-',
+#               'bonus_open': 'AQADUdUxG2M7QEhy',
+#               'restate_grow_liquid': 'AQADVdUxG2M7QEh-',
+#               }

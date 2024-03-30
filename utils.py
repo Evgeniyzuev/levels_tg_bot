@@ -118,10 +118,13 @@ async def get_bonuses_gotten(user_id):
 async def open_bonus(user_id):
     with database.Session() as session:
         user = session.query(User).filter(User.user_id == user_id).first()
+        text4 = "\nЗдесь пока ничего нет. Куда всё делось? 🤔 \n\nБонусы разыгрываются каждый день! \nМы отправим уведомление, когда придет бонус.\
+                \n\nРекомендуем включить всплывающие уведомления в настройках бота🔔 Чтобы не пропустить.\n\n Нажимайте поделиться\n получайте бонус за каждого нового подписчика! 🎁"
+          
         if user.bonuses_available >= 1:
             user.bonuses_available-= 1
             bonus_size = float(random.randint(0, 333))
-            bonus_size = bonus_size // 100
+            bonus_size = bonus_size / 100
             bonus_size = bonus_size ** 3
             bonus_size = bonus_size + 10.074 + (random.randint(0, 300))/100
             await add_restate(user_id, bonus_size)
@@ -130,15 +133,19 @@ async def open_bonus(user_id):
             session.commit()
             bonuses_gotten = user.bonuses_gotten
             balance_sum = user.restate+user.grow_wallet+user.liquid_wallet
-            text1 = '🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
+            text1 = '\n🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
             text2 = f"\n🎁 Бонус:         " + '%.2f' %(bonus_size) + " рублей" 
             text3 = "\n💳 Баланс:      " + ( '%.2f' %(balance_sum)) + " рублей"
-            await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\bonus_open.jpg'), caption=text1 + text2 + text3)
+            try:
+                await bot.send_photo(user_id, photo=database.photo_ids_test['bonus_open'], caption=text1 + text2 + text3)
+            except:
+                await bot.send_message(user_id,'Здесь могло быть наше фото 😄\n' + text1 + text2 + text3)
         else:
-            await bot.send_video(user_id, video=types.FSInputFile('BASE_MEDIA\\videos\\travolta.gif.mp4'), caption="\
-            Здесь пока ничего нет. Куда всё делось? 🤔 \n\nБонусы разыгрываются каждый день! \nМы отправим уведомление, когда придет бонус.\
-                                \n\nРекомендуем включить всплывающие уведомления в настройках бота🔔 Чтобы не пропустить.\n\n Нажимайте поделиться\n получайте бонус за каждого нового подписчика! 🎁") 
-
+            try:
+                await bot.send_photo(user_id, photo=database.photo_ids_test['travolta'], caption=text4) 
+            except:
+                await bot.send_message(user_id,'Здесь могло быть наше фото 😄\n' + text4)
+            
 
 async def add_restate(user_id, amount):
     with database.Session() as session:
@@ -212,9 +219,9 @@ async def get_balance(user_id):
     # else:     
         user = await database.get_user(user_id)
 
-        text1 = "\n\n1️⃣ Restate(25%):  " + '%.2f' %(user.restate) + ' рублей'
-        text2 =   "\n2️⃣ Grow(20%):      " + '%.2f' %(user.grow_wallet) + ' рублей'
-        text3 =   "\n3️⃣ Liquid(0%):       " + '%.2f' %(user.liquid_wallet) + ' рублей'
+        text1 = "\n\n🏡 Restate(25%):  " + '%.2f' %(user.restate) + ' рублей'
+        text2 =   "\n🌱 Grow(20%):      " + '%.2f' %(user.grow_wallet) + ' рублей'
+        text3 =   "\n💧 Liquid(0%):       " + '%.2f' %(user.liquid_wallet) + ' рублей'
         sum = user.restate + user.grow_wallet + user.liquid_wallet
         text0 = "💳 Баланс:            " + ( '%.2f' %(sum)) + " рублей"
         balance_text = text0 + text1 + text2 + text3 + texts.accounts_about_text
@@ -245,7 +252,10 @@ async def level_tub(user_id):
 
 async def balance_tub(user_id):
     balance_text = await get_balance(user_id)
-    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\\restate_grow_liquid.jpg'), caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
+    try:
+        await bot.send_photo(user_id, photo=database.photo_ids_test['restate_grow_liquid'], caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
+    except:
+        await bot.send_message(user_id, f'{balance_text}', reply_markup=kb.balance_control_markup)
 
 
 async def partners_tub(user_id):
@@ -301,7 +311,10 @@ async def switch_tubs(code , user_id):
 # Guide
 # Про Уровни. Даем первый бонус. Открывайте.
 async def start_guide1(user_id):
-    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\choose_your_level2.jpg.jpg'),caption=texts.start_guide1_text)
+    try:
+        await bot.send_photo(user_id, photo=database.photo_ids_test['choose_your_level'],caption=texts.start_guide1_text)
+    except:
+        await bot.send_message(user_id, texts.start_guide1_text)
     await asyncio.sleep(1)
    
     with database.Session() as session:
@@ -348,8 +361,11 @@ async def start_guide3(user_id):
                     await bot.send_message(user_id, '2. Поделиться СВОЕЙ реферальной ссылкой в ТГ.')
                     await asyncio.sleep(2)
                     referral_link = user.referral_link 
-                    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\\bonus_open.jpg'),\
+                    try:
+                        await bot.send_photo(user_id, photo=database.photo_ids_test['bonus_open'],\
                                 caption= texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
+                    except:
+                        await bot.send_message(user_id, 'Здесь могло быть наше фото 😄\n' + texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
                     await asyncio.sleep(2)
                     await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
                 else:
@@ -369,8 +385,11 @@ async def start_guide3_nosub(user_id):
     await bot.send_message(user_id, '2. Поделиться своей реферальной ссылкой в ТГ.')
     await asyncio.sleep(2)
     referral_link = user.referral_link 
-    await bot.send_photo(user_id, photo=types.FSInputFile('BASE_MEDIA\pics\bonus_open.jpg'),\
+    try:
+        await bot.send_photo(user_id, photo=database.photo_ids_test['bonus_open'],\
                 caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
+    except:
+        await bot.send_message(user_id, 'Здесь могло быть наше фото 😄\n' + texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
     await asyncio.sleep(2)
 
 
