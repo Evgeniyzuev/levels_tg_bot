@@ -123,6 +123,26 @@ async def user_info(user_id):
     #     await bot.send_message(user_id, "Бот не обновляется♻️\nПерезайдите по реф.ссылке или попробуйте позднее") 
    
 
+level_1_channel = -1002128672686
+level_2_channel = -1002083788701
+level_3_channel = -1002095901143
+level_4_channel = -1002051825111
+level_5_channel = -1002055692741
+level_6_channel = -1002005520032
+level_7_channel = -1002081701051
+level_8_channel = -1002114431064
+level_9_channel = -1002084433490
+level_10_channel = -1002060493521
+level_11_channel = -1002009023699
+level_12_channel = -1
+level_13_channel = -1
+level_14_channel = -1
+level_15_channel = 1
+level_16_channel = 1
+level_17_channel = 1
+level_1_channel_link = 'https://t.me/+mfZCEAzD49AxNzUy'
+level_2_channel_link = 'https://t.me/+_OWQU1CpS7xhOGJi'
+level_3_channel_link = 'https://t.me/+ENbYbjFKxyg1NzUy'
 
 # local_users = {}
 ubicoin = 250
@@ -133,20 +153,3 @@ payment_to_check_user_id = 0
 payment_to_check_amount = 0
 # users = {}
 
-# photo_ids_test = {'travolta': 'AgACAgIAAxkBAAIzSmYHUfuo0DcPGyj7mwAByCr53bpHhQACVNUxG2M7QEgzWdI_jHBtOwEAAwIAA20AAzQE',
-#               'choose_your_level': 'AgACAgIAAxkBAAIzR2YHUc6tN-UIpSbkU8YKnm_vK6klAAJT1TEbYztASFROeNiNbagBAQADAgADeQADNAQ',
-#               'bonus_open': 'AgACAgIAAxkBAAIzRGYHUV0c6mJYqY1BULMG55q-QxoCAAJR1TEbYztASA8PjnieQWONAQADAgADbQADNAQ',
-#               'restate_grow_liquid': 'AgACAgIAAxkBAAIzTWYHUjYtypF4Y7UzvnPPNR06EmB0AAJV1TEbYztASJLXNe5O_V1MAQADAgADeQADNAQ',
-#               }
-
-photo_ids_test = {'travolta': 'AgACAgIAAxkBAAIGDmYDGxT-ll44gRkr-R6sgFliUTdiAAK82TEbjsgYSHnT_47idacFAQADAgADbQADNAQ',
-              'choose_your_level': 'AgACAgIAAxkBAAIGEWYDHHDuP4C52KYM4AfaEuSkAhn-AAK12TEbjsgYSJ2Qt-Z7gxEoAQADAgADeQADNAQ',
-              'bonus_open': 'AgACAgIAAxkBAAIGFGYDHKRNtWLMvW43ReKV_YnaTR6xAALd2TEbjsgYSG5vFR38d6UcAQADAgADbQADNAQ',
-              'restate_grow_liquid': 'AgACAgIAAxkBAAIGF2YDHPPeEJ_cs7oSeqMbpycKs4ULAALk2TEbjsgYSITh8mSocqlbAQADAgADeQADNAQ',
-              }
-
-# photo_unique_ids = {'travolta': 'AQADVNUxG2M7QEhy',
-#               'choose_your_level': 'AQADU9UxG2M7QEh-',
-#               'bonus_open': 'AQADUdUxG2M7QEhy',
-#               'restate_grow_liquid': 'AQADVdUxG2M7QEh-',
-#               }

@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardBu
 #     [InlineKeyboardButton(text="📝\nПрофиль", callback_data="profile"),InlineKeyboardButton(text="🔗\nРесурсы", callback_data="resources")],[InlineKeyboardButton(text="🔼\nУровень", callback_data="level"),
 #     InlineKeyboardButton(text="💳\nБаланс", callback_data="balance")],[InlineKeyboardButton(text="💎\nПартнёры", callback_data="partners"), InlineKeyboardButton(text="🎁\nБонусы", callback_data="bonuses")],
 #     [InlineKeyboardButton(text="🔎\nИнфо", callback_data="info")]]
-menu_button = [InlineKeyboardButton(text="🔴 Menu", callback_data="menu", one_time_keyboard = True)]
+menu_button = [InlineKeyboardButton(text="🟢 Menu", callback_data="menu", one_time_keyboard = True)]
 profile_button = [InlineKeyboardButton(text="🪪 Профиль", callback_data="profile", one_time_keyboard = True)]
 bonus_button = [InlineKeyboardButton(text="🎁 Открыть Бонус", callback_data="open_bonus", one_time_keyboard = True)]
 up_level = [InlineKeyboardButton(text="🔼 Поднять уровень", callback_data="up_level", one_time_keyboard = True)]
@@ -29,8 +29,6 @@ admin_payout = InlineKeyboardButton(text="Перевод", callback_data="admin_
 check_user_payment = InlineKeyboardButton(text="Проверить платеж", callback_data="check_user_payment", one_time_keyboard = True)
 admin_change_amount_payment = InlineKeyboardButton(text="Изменить сумму платежа", callback_data="admin_change_amount_payment", one_time_keyboard = True)
 changed_amount_payment_confirm = InlineKeyboardButton(text="Подтвердить сумму платежа", callback_data="changed_amount_payment_confirm", one_time_keyboard = True)
-
-
 
 
 
@@ -78,7 +76,7 @@ add_balance_ready = InlineKeyboardMarkup(inline_keyboard=[add_balance_ready])
 
 "1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣7️⃣8️⃣9️⃣0️⃣"
 
-button1 = KeyboardButton(text="🔴\nМеню")
+button1 = KeyboardButton(text="🟢\nМеню")
 button2 = KeyboardButton(text="🪪\nПрофиль")
 button3 = KeyboardButton(text="🔼\nУровень")
 button4 = KeyboardButton(text="💳\nБаланс")
@@ -86,7 +84,7 @@ button5 = KeyboardButton(text="💎\nПартнеры")
 button6 = KeyboardButton(text="🔗\nРесурсы")
 button7 = KeyboardButton(text="🎁\nБонусы")
 button8 = KeyboardButton(text="🔎\nИнфо")
-switch_tabs_emoji_text=["🔴\nМеню", "🪪\nПрофиль", "🔗\nРесурсы", "🔼\nУровень", "💳\nБаланс", "💎\nПартнеры", "🎁\nБонусы", "🔎\nИнфо"]
+switch_tabs_emoji_text=["🟢\nМеню", "🪪\nПрофиль", "🔗\nРесурсы", "🔼\nУровень", "💳\nБаланс", "💎\nПартнеры", "🎁\nБонусы", "🔎\nИнфо"]
 
 menu_buttons_reply_markup = ReplyKeyboardMarkup(keyboard=[[button1, button2, button3, button4], [button5, button6, button7, button8]], resize_keyboard=True)
 

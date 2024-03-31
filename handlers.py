@@ -3,13 +3,13 @@ import texts
 import utils
 import config
 import database #import SessionLocal, User
-from datetime import datetime, timedelta
-import re
+from misc import dp, bot
+
 
 from aiogram import types, F, Router, flags
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, InputFile
+from aiogram.types import Message
 from aiogram.filters import Command, CommandStart, CommandObject, StateFilter
 from aiogram.utils.deep_linking import create_start_link, decode_payload
 from sqlalchemy.sql import func
@@ -21,15 +21,24 @@ from aiogram.types import (
     ReplyKeyboardRemove,
 )
 
-
-from misc import dp, bot
-from states import Gen
-
-
-
 #     Справочник https://t.me/aiogram/28
-# 
 #     await callback_query.answer("Как много?",reply_markup=ReplyKeyboardRemove(),)  Всплывающее сообщение и удаление клавиатуры
+
+
+# класс состояний
+class Form(StatesGroup):
+    amount_state = State()
+    amount_state_ok = State()
+    wait_check = State()
+    grow_to_liquid = State()
+    liquid_wallet_down = State()
+    grow_wallet_up = State()
+    liquid_to_grow = State()
+    restate_up = State()
+    restate_down = State()
+    admin_send_ckeck_state = State()
+    user_send_ckeck_state = State()
+    requisites_entering_state = State()
 
 
 # START
@@ -73,16 +82,14 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
 @dp.message(Command("start"))
 async def start_handler( callback_query: types.CallbackQuery): #message: Message,
     user_id = callback_query.from_user.id
-    # chat_id = callback_query.message.chat.id
     user_name = callback_query.from_user.full_name
-    try:
-        await bot.send_message(user_id, f"{user_name}, привет!\nВсегда рад видеть! 🤗")
-    finally:
-        pass
+    await bot.send_message(user_id, f"{user_name}, привет!\nВсегда рад видеть! 🤗")
     await utils.start_guide_stages(user_id)
 
 
-
+# # добавление пользователя в канал
+dp.chat_join_request.register(utils.approve_chat_join_request)
+ 
 # Нажатие кнопки открыть бонус
 @dp.callback_query(F.data == "open_bonus")
 async def process_open_bonus_button(callback_query: types.CallbackQuery): #message: Message, 
@@ -104,30 +111,6 @@ async def process_open_bonus_button(callback_query: types.CallbackQuery): #messa
         await utils.start_guide2(user_id)  
     elif user.guide_stage == 3:
         await utils.start_guide4(user_id)
-
-
-# # Запрос проверить оплату
-# @dp.callback_query(F.data == "check_user_payment")
-# async def process_check_payment(callback_query: types.CallbackQuery): #message: Message,    
-#     user_id = callback_query.from_user.id
-#     # user_name = callback_query.from_user.full_name
-#     # chat_id =  await bot.get_chat()
-#     user = await database.get_user(user_id)
-#     # bonuses_gotten = user.bonuses_gotten
-#     # bonuses_available = user.bonuses_available
-#     # if bonuses_available > 0:
-#     #     if bonuses_gotten-bonuses_available == 1:
-#     #         try:
-#     #             current_leader_id = user.current_leader_id
-#     await bot.send_message(config.levels_guide_id, text= f":Запрос подтверждение на сумму:{database.gamma}; (ID:{user_id};)", reply_markup=kb.admin_confirm_payment)
-
-#     # await bot.send_message(user_id, text="не получилось")   
-
-    # database.gamma[user_id] = 0
-    # database.payment_to_check[user_id] = 0
-    # await bot.edit_message_reply_markup(user_id, message_id=callback_query.message.message_id, reply_markup=None )
-    # await bot.send_message(user_id, text="Оплата подтверждена")
-
 
 
 # Нажатие кнопки получать бонус за реферала
@@ -164,8 +147,8 @@ async def process_add_grow(callback_query: types.CallbackQuery):
     await bot.send_message(user_id, f'Пополнение grow_wallet:\n\n + {database.gamma[user_id]} рублей'+ texts.add_grow_text_1, reply_markup=kb.add_balance_ready)
 
 # Передаёт запрос на пополнение админу
-@dp.callback_query(F.data == "add_balance_ready") 
-async def process_add_balance_ready(callback_query: types.CallbackQuery):
+@dp.callback_query(F.data == "add_balance_ready")
+async def process_add_balance_ready(callback_query: types.CallbackQuery, state: FSMContext) -> None:
     user_id = callback_query.from_user.id
     database.payment_to_check_user_id = user_id
     await bot.edit_message_reply_markup(user_id, message_id=callback_query.message.message_id, reply_markup=None )
@@ -173,21 +156,16 @@ async def process_add_balance_ready(callback_query: types.CallbackQuery):
     # database.payment_to_check=database.gamma[user_id]
     await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
     await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
+    await state.set_state(Form.user_send_ckeck_state)
     await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте боту чек 📎↘️')
 
-# класс состояний
-class Form(StatesGroup):
-    amount_state = State()
-    amount_state_ok = State()
-    wait_check = State()
-    grow_to_liquid = State()
-    liquid_wallet_down = State()
-    grow_wallet_up = State()
-    liquid_to_grow = State()
-    restate_up = State()
-    restate_down = State()
-    admin_payout_state = State()
-    requisites_entering_state = State()
+
+@dp.message(StateFilter(Form.user_send_ckeck_state))
+async def process_user_send_ckeck_state(message: Message, state: FSMContext) -> None:
+    await message.send_copy(config.levels_guide_id)
+    await state.set_state(None)
+    await bot.send_message(message.from_user.id, f'Платеж в процессе')
+
 
 # # Изменить сумму платежа вручную
 @dp.callback_query(F.data == "admin_change_amount_payment")
@@ -286,7 +264,7 @@ async def process_amount(message: Message, state: FSMContext) -> None:
     try:
         amount = int(message.text)
         if amount < 0: amount = -1*amount
-        if user.liquid_wallet < amount:
+        if user.liquid_wallet < amount or user.liquid_wallet <= 0:
             await message.answer(f'Недостаточно средств')
             await state.set_state(None)
         else:
@@ -322,13 +300,24 @@ async def process_confirm_payment_button(callback_query: types.CallbackQuery, st
     user_id = splitted[1]
     amount = splitted[0]
     user_id = int(user_id)
+    database.payment_to_check_user_id = user_id
     amount = int(amount)
     await utils.add_liquid(user_id,(-1)*amount)
     await bot.send_message(config.levels_guide_id, text= f"прикрепляем чек USER (amount;ID)")
     await bot.edit_message_reply_markup(config.levels_guide_id, message_id=callback_query.message.message_id, reply_markup=None )
     await bot.send_message(user_id, f'Перевод исполнен:\n {amount} рублей' )
-    await state.set_state(Form.admin_payout_state)
+    await state.set_state(Form.admin_send_ckeck_state)
 
+@dp.message(StateFilter(Form.admin_send_ckeck_state))
+async def process_admin_send_ckeck_state(message: Message, state: FSMContext) -> None:
+    await message.send_copy(database.payment_to_check_user_id)
+    await state.set_state(None)
+
+
+
+
+
+    
 # @dp.message(StateFilter(Form.requisites_entering_state))
 # async def process_requisites_entering_state(message: Message, state: FSMContext) -> None:
 

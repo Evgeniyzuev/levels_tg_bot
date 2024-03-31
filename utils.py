@@ -10,8 +10,7 @@ import kb
 from misc import bot
 from database import User
 
-
-from aiogram import types
+from aiogram.types import ChatJoinRequest
 
 
 # BONUS
@@ -79,6 +78,7 @@ async def up_me(user_id):
         if database.gamma[user_id] > 0:
             await bot.send_message(user_id,  f'Недостаточно средств: {database.gamma[user_id]} рублей')
         else:
+            balance = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet+lead_grace
             if restate_require > user.restate:
                 # user.grow_wallet-=(restate_require-user.restate)
                 await add_grow(user_id, -restate_require+user.restate)
@@ -97,12 +97,110 @@ async def up_me(user_id):
             await add_turnover(current_leader_id, lead_grace)
             await if_grow_wallet_is_negative(user_id)
                     
-            sum = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet
-            text0 = "\n💳 Баланс: " + ( '%.2f' %(sum)) + " рублей" 
+            balance = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet
+            text0 = "\n💳 Баланс: " + ( '%.2f' %(balance)) + " рублей" 
 
             await bot.send_message(user_id, f'Уровень повышен 🔼: {user.level+1}\n')
             await bot.send_message(current_leader_id, f'Входящий: +{lead_grace} рублей'+ text0 +f'\n\nВаш реферал {user.user_name}: {(user.level)} 🔼 {user.level+1}\
                                 \n\n*напоминание: Ваши рефералы могут достичь вашего уровня. Тогда они не смогут взять следующий уровень у вас. И они уйдут к другому Лиду')
+
+
+
+# dp.chat_join_request.register(approve_chat_join_request, F.chat.id == level_2_channel)
+async def approve_chat_join_request(chat_join: ChatJoinRequest):
+    chat_id = chat_join.chat.id
+    chat_name = chat_join.chat.full_name
+    user = await database.get_user(chat_join.from_user.id)
+    user_name = chat_join.from_user.full_name
+    if chat_id == database.level_1_channel:
+        if user.level >= 1:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_2_channel:
+        if user.level >= 2:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_3_channel:
+        if user.level >= 3:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_4_channel:
+        if user.level >= 4:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_5_channel:
+        if user.level >= 5:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_6_channel:
+        if user.level >= 6:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_7_channel:
+        if user.level >= 7:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_8_channel:
+        if user.level >= 8:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_9_channel:
+        if user.level >= 9: 
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_10_channel:
+        if user.level >= 10:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_11_channel:
+        if user.level >= 11:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_12_channel:
+        if user.level >= 12:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_13_channel:
+        if user.level >= 13:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_14_channel:
+        if user.level >= 14:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_15_channel:
+        if user.level >= 15:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_16_channel:
+        if user.level >= 16:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_17_channel:
+        if user.level >= 17:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+
+
+
+
 
 
 async def get_bonuses_available(user_id):
@@ -137,12 +235,12 @@ async def open_bonus(user_id):
             text2 = f"\n🎁 Бонус:         " + '%.2f' %(bonus_size) + " рублей" 
             text3 = "\n💳 Баланс:      " + ( '%.2f' %(balance_sum)) + " рублей"
             try:
-                await bot.send_photo(user_id, photo=database.photo_ids_test['bonus_open'], caption=text1 + text2 + text3)
+                await bot.send_photo(user_id, photo=config.photo_ids_test['bonus_open'], caption=text1 + text2 + text3)
             except:
                 await bot.send_message(user_id,'Здесь могло быть наше фото 😄\n' + text1 + text2 + text3)
         else:
             try:
-                await bot.send_photo(user_id, photo=database.photo_ids_test['travolta'], caption=text4) 
+                await bot.send_photo(user_id, photo=config.photo_ids_test['travolta'], caption=text4) 
             except:
                 await bot.send_message(user_id,'Здесь могло быть наше фото 😄\n' + text4)
             
@@ -231,7 +329,7 @@ async def get_balance(user_id):
 # TABS вкладки
 #  Вкладки МЕНЮ
 async def main_menu(user_id):
-     await bot.send_message(user_id, "🔴 Кнопки внизу 🔢 ⬇️", reply_markup=kb.menu_buttons_reply_markup)
+     await bot.send_message(user_id, "🟢 Кнопки внизу 🔢 ⬇️", reply_markup=kb.menu_buttons_reply_markup)
     #  await bot.send_message(user_id, " Все  вкладки  главного  меню  ", reply_markup=kb.menu_markup)
 
 async def profile_tub(user_id):
@@ -253,7 +351,7 @@ async def level_tub(user_id):
 async def balance_tub(user_id):
     balance_text = await get_balance(user_id)
     try:
-        await bot.send_photo(user_id, photo=database.photo_ids_test['restate_grow_liquid'], caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
+        await bot.send_photo(user_id, photo=config.photo_ids_test['restate_grow_liquid'], caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
     except:
         await bot.send_message(user_id, f'{balance_text}', reply_markup=kb.balance_control_markup)
 
@@ -285,8 +383,7 @@ async def bonuses_tub(user_id):
         await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
         
 async def resources_tub(user_id):
-    resurses_text = '\n\nОфициальный канал: https://t.me/Levels_up'
-    await bot.send_message(user_id, "🔗 Ресурсы" + resurses_text, reply_markup=kb.resources_markup)
+    await bot.send_message(user_id, texts.resurses_text, reply_markup=kb.resources_markup)
 
 async def info_tub(user_id):
     await bot.send_message(user_id, "🔎 Инфо"+ texts.info_text, reply_markup=kb.info_markup)
@@ -312,7 +409,7 @@ async def switch_tubs(code , user_id):
 # Про Уровни. Даем первый бонус. Открывайте.
 async def start_guide1(user_id):
     try:
-        await bot.send_photo(user_id, photo=database.photo_ids_test['choose_your_level'],caption=texts.start_guide1_text)
+        await bot.send_photo(user_id, photo=config.photo_ids_test['choose_your_level'],caption=texts.start_guide1_text)
     except:
         await bot.send_message(user_id, texts.start_guide1_text)
     await asyncio.sleep(1)
@@ -349,7 +446,8 @@ async def start_guide3(user_id):
             user = session.query(User).filter(User.user_id == user_id).first() 
             user_channel_status = await bot.get_chat_member(chat_id='-1001973511610', user_id=user_id)
             if user_channel_status != 'left':
-                if user_channel_status.status == "creator" or user_channel_status.status == "member" or user_channel_status.status == 'ChatMemberMember':
+                # if user_channel_status.status == "creator" or user_channel_status.status == "member" or user_channel_status.status == 'ChatMemberMember':
+                if user_channel_status.status in ['creator', 'member', 'ChatMemberMember']:
                     # database.get_user(user_id).guide_stage  = 3
                     user.guide_stage  = 3
                     if user.bonuses_gotten  == 1:
@@ -362,7 +460,7 @@ async def start_guide3(user_id):
                     await asyncio.sleep(2)
                     referral_link = user.referral_link 
                     try:
-                        await bot.send_photo(user_id, photo=database.photo_ids_test['bonus_open'],\
+                        await bot.send_photo(user_id, photo=config.photo_ids_test['bonus_open'],\
                                 caption= texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
                     except:
                         await bot.send_message(user_id, 'Здесь могло быть наше фото 😄\n' + texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
@@ -386,7 +484,7 @@ async def start_guide3_nosub(user_id):
     await asyncio.sleep(2)
     referral_link = user.referral_link 
     try:
-        await bot.send_photo(user_id, photo=database.photo_ids_test['bonus_open'],\
+        await bot.send_photo(user_id, photo=config.photo_ids_test['bonus_open'],\
                 caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
     except:
         await bot.send_message(user_id, 'Здесь могло быть наше фото 😄\n' + texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
