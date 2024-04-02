@@ -53,16 +53,24 @@ async def up_level(user_id):
                                \n\nБаланс: '+ '%.2f' %(balance) + " руб", reply_markup=kb.up_me)
 
 
+async def good_morning_all():
+    for user in await database.get_all_users():
+        user_id = user.user_id
+        await good_morning(user_id)
 
 
-# # TODO Создать очередь платежей юзера на проверку. Тогда это не надо:(перенести на предыдущий шаг: if  database.payment_to_check[user_id] != 0:)
-# async def add_balance_ready(user_id):
-#         database.payment_to_check=database.gamma[user_id]
-#         await bot.send_message(config.levels_guide_id, text= f":Запрашивают подтверждение пополнения баланса. USER (amount;ID)  Пришла?")
-#         await bot.send_message(config.levels_guide_id, text= f"{database.gamma[user_id]};{user_id}", reply_markup=kb.admin_confirm_payment)
-#         await bot.send_message(user_id, f'Платеж: {database.gamma[user_id]} рублей - ожидает подтверждения\n\nОтправьте боту чек 📎↘️') #\nили Имя Отчество и первую букву фамилии отправителя и последние 4 цифры карты , например: (Иван Иванович И. 7728)
+async def good_morning(user_id):
+    user = await database.get_user(user_id)
+    restate = user.restate
+    grow = user.grow_wallet
+    add_restate_amount = restate * 0.0006
+    add_grow_amount = grow * 0.0006
+    await add_grow(user_id, add_grow_amount)
+    await add_restate(user_id, add_restate_amount)
+    await add_turnover(user_id, add_grow_amount+add_restate_amount)
+    text = f'\n+ {add_grow_amount + add_restate_amount} рублей\n\nGood morning, {user.user_name}!\n\nВсе в уровнях получают деньги каждый день\nМожно определить сумму комфортную для себя\nИ дойти до своего уровня дохода\n\n'
+    await bot.send_message(user_id, text)
 
-    
 
 async def up_me(user_id):
     # with database.Session() as session:
@@ -194,6 +202,21 @@ async def approve_chat_join_request(chat_join: ChatJoinRequest):
         else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
     if chat_id == database.level_17_channel:
         if user.level >= 17:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_18_channel:
+        if user.level >= 18:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_19_channel:
+        if user.level >= 19:
+            await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
+            await chat_join.approve()
+        else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')
+    if chat_id == database.level_20_channel:
+        if user.level >= 20:
             await bot.send_message(chat_join.from_user.id, f'{user_name}, добро пожаловать в канал {chat_name}')
             await chat_join.approve()
         else: await bot.send_message(chat_join.from_user.id, f'Недостаточный уровнень для доступа в канал {chat_id}')

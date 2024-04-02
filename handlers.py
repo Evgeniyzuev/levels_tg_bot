@@ -86,6 +86,14 @@ async def start_handler( callback_query: types.CallbackQuery): #message: Message
     await bot.send_message(user_id, f"{user_name}, привет!\nВсегда рад видеть! 🤗")
     await utils.start_guide_stages(user_id)
 
+@dp.message(Command("morning"))
+async def start_handler( callback_query: types.CallbackQuery): #message: Message,
+    user_id = callback_query.from_user.id
+    if user_id == config.levels_guide_id:
+    # user_name = callback_query.from_user.full_name
+        await bot.send_message(user_id, f'Инициирую протокол доброе утро')
+        await utils.good_morning_all()
+
 
 # # добавление пользователя в канал
 dp.chat_join_request.register(utils.approve_chat_join_request)
