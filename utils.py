@@ -10,7 +10,11 @@ import kb
 from misc import bot
 from database import User
 
+
 from aiogram.types import ChatJoinRequest
+
+
+
 
 
 # BONUS
@@ -53,6 +57,7 @@ async def up_level(user_id):
                                \n\nБаланс: '+ '%.2f' %(balance) + " руб", reply_markup=kb.up_me)
 
 
+
 async def good_morning_all():
     for user in await database.get_all_users():
         user_id = user.user_id
@@ -75,6 +80,10 @@ async def good_morning(user_id):
 async def up_me(user_id):
     # with database.Session() as session:
         user = await database.get_user(user_id)
+
+
+
+
         current_leader_id = user.current_leader_id
         current_leader = await database.get_user(current_leader_id)
         restate_require = database.ubicoin * (2 ** (user.level+1))
@@ -86,6 +95,7 @@ async def up_me(user_id):
         if database.gamma[user_id] > 0:
             await bot.send_message(user_id,  f'Недостаточно средств: {database.gamma[user_id]} рублей')
         else:
+
             balance = current_leader.restate + current_leader.grow_wallet + current_leader.liquid_wallet+lead_grace
             if restate_require > user.restate:
                 # user.grow_wallet-=(restate_require-user.restate)
@@ -226,6 +236,7 @@ async def approve_chat_join_request(chat_join: ChatJoinRequest):
 
 
 
+
 async def get_bonuses_available(user_id):
     user = await database.get_user(user_id)
     # bonuses_available = user.bonuses_available
@@ -239,6 +250,7 @@ async def get_bonuses_gotten(user_id):
 async def open_bonus(user_id):
     with database.Session() as session:
         user = session.query(User).filter(User.user_id == user_id).first()
+
         text4 = "\nЗдесь пока ничего нет. Куда всё делось? 🤔 \n\nБонусы разыгрываются каждый день! \nМы отправим уведомление, когда придет бонус.\
                 \n\nРекомендуем включить всплывающие уведомления в настройках бота🔔 Чтобы не пропустить.\n\n Нажимайте поделиться\n получайте бонус за каждого нового подписчика! 🎁"
           
@@ -246,6 +258,7 @@ async def open_bonus(user_id):
             user.bonuses_available-= 1
             bonus_size = float(random.randint(0, 333))
             bonus_size = bonus_size / 100
+
             bonus_size = bonus_size ** 3
             bonus_size = bonus_size + 10.074 + (random.randint(0, 300))/100
             await add_restate(user_id, bonus_size)
@@ -254,6 +267,7 @@ async def open_bonus(user_id):
             session.commit()
             bonuses_gotten = user.bonuses_gotten
             balance_sum = user.restate+user.grow_wallet+user.liquid_wallet
+
             text1 = '\n🔼 Получено бонусов:     ' + f"{bonuses_gotten}"
             text2 = f"\n🎁 Бонус:         " + '%.2f' %(bonus_size) + " рублей" 
             text3 = "\n💳 Баланс:      " + ( '%.2f' %(balance_sum)) + " рублей"
@@ -267,6 +281,7 @@ async def open_bonus(user_id):
             except:
                 await bot.send_message(user_id,'Здесь могло быть наше фото 😄\n' + text4)
             
+
 
 async def add_restate(user_id, amount):
     with database.Session() as session:
@@ -291,6 +306,7 @@ async def add_turnover(user_id, amount):
         user = session.query(User).filter(User.user_id == user_id).first()
         user.turnover += amount
         session.commit()
+
 
 async def add_level(user_id):
     with database.Session() as session:
@@ -340,9 +356,11 @@ async def get_balance(user_id):
     # else:     
         user = await database.get_user(user_id)
 
+
         text1 = "\n\n🏡 Restate(25%):  " + '%.2f' %(user.restate) + ' рублей'
         text2 =   "\n🌱 Grow(20%):      " + '%.2f' %(user.grow_wallet) + ' рублей'
         text3 =   "\n💧 Liquid(0%):       " + '%.2f' %(user.liquid_wallet) + ' рублей'
+
         sum = user.restate + user.grow_wallet + user.liquid_wallet
         text0 = "💳 Баланс:            " + ( '%.2f' %(sum)) + " рублей"
         balance_text = text0 + text1 + text2 + text3 + texts.accounts_about_text
@@ -352,7 +370,9 @@ async def get_balance(user_id):
 # TABS вкладки
 #  Вкладки МЕНЮ
 async def main_menu(user_id):
+
      await bot.send_message(user_id, "🟢 Кнопки внизу 🔢 ⬇️", reply_markup=kb.menu_buttons_reply_markup)
+
     #  await bot.send_message(user_id, " Все  вкладки  главного  меню  ", reply_markup=kb.menu_markup)
 
 async def profile_tub(user_id):
@@ -373,10 +393,12 @@ async def level_tub(user_id):
 
 async def balance_tub(user_id):
     balance_text = await get_balance(user_id)
+
     try:
         await bot.send_photo(user_id, photo=config.photo_ids_test['restate_grow_liquid'], caption=f'{balance_text}', reply_markup=kb.balance_control_markup)
     except:
         await bot.send_message(user_id, f'{balance_text}', reply_markup=kb.balance_control_markup)
+
 
 
 async def partners_tub(user_id):
@@ -405,8 +427,9 @@ async def bonuses_tub(user_id):
     except:
         await bot.send_message(user_id, "Пользователь не найден. Перезагрузите бота")
         
-async def resources_tub(user_id):
+
     await bot.send_message(user_id, texts.resurses_text, reply_markup=kb.resources_markup)
+
 
 async def info_tub(user_id):
     await bot.send_message(user_id, "🔎 Инфо"+ texts.info_text, reply_markup=kb.info_markup)
@@ -431,10 +454,12 @@ async def switch_tubs(code , user_id):
 # Guide
 # Про Уровни. Даем первый бонус. Открывайте.
 async def start_guide1(user_id):
+
     try:
         await bot.send_photo(user_id, photo=config.photo_ids_test['choose_your_level'],caption=texts.start_guide1_text)
     except:
         await bot.send_message(user_id, texts.start_guide1_text)
+
     await asyncio.sleep(1)
    
     with database.Session() as session:
@@ -469,8 +494,10 @@ async def start_guide3(user_id):
             user = session.query(User).filter(User.user_id == user_id).first() 
             user_channel_status = await bot.get_chat_member(chat_id='-1001973511610', user_id=user_id)
             if user_channel_status != 'left':
+
                 # if user_channel_status.status == "creator" or user_channel_status.status == "member" or user_channel_status.status == 'ChatMemberMember':
                 if user_channel_status.status in ['creator', 'member', 'ChatMemberMember']:
+
                     # database.get_user(user_id).guide_stage  = 3
                     user.guide_stage  = 3
                     if user.bonuses_gotten  == 1:
@@ -482,11 +509,13 @@ async def start_guide3(user_id):
                     await bot.send_message(user_id, '2. Поделиться СВОЕЙ реферальной ссылкой в ТГ.')
                     await asyncio.sleep(2)
                     referral_link = user.referral_link 
+
                     try:
                         await bot.send_photo(user_id, photo=config.photo_ids_test['bonus_open'],\
                                 caption= texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
                     except:
                         await bot.send_message(user_id, 'Здесь могло быть наше фото 😄\n' + texts.start_guide3_text_1 +f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n ♻️ 🔁 ❗️РЕПОСТ ТУТ❗️  ➡️  ➡️  ➡️")
+
                     await asyncio.sleep(2)
                     await bot.send_message(user_id, texts.start_guide3_text_2, reply_markup=kb.check_done_button)
                 else:
@@ -506,11 +535,13 @@ async def start_guide3_nosub(user_id):
     await bot.send_message(user_id, '2. Поделиться своей реферальной ссылкой в ТГ.')
     await asyncio.sleep(2)
     referral_link = user.referral_link 
+
     try:
         await bot.send_photo(user_id, photo=config.photo_ids_test['bonus_open'],\
                 caption= texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
     except:
         await bot.send_message(user_id, 'Здесь могло быть наше фото 😄\n' + texts.start_guide3_text_1 + f"{referral_link}" + "\n🎁 ⬆️ Бонус здесь ⬆️ 🎁\n\n\n❗️ ♻️ 🔁 РЕПОСТ тут ➡️ ➡️ ➡️")
+
     await asyncio.sleep(2)
 
 

@@ -3,6 +3,7 @@ import texts
 import utils
 import config
 import database #import SessionLocal, User
+
 from misc import dp, bot
 
 
@@ -39,6 +40,7 @@ class Form(StatesGroup):
     admin_send_ckeck_state = State()
     user_send_ckeck_state = State()
     requisites_entering_state = State()
+
 
 
 # START
@@ -82,6 +84,7 @@ async def start_handler( callback_query: types.CallbackQuery, command: CommandOb
 @dp.message(Command("start"))
 async def start_handler( callback_query: types.CallbackQuery): #message: Message,
     user_id = callback_query.from_user.id
+-
     user_name = callback_query.from_user.full_name
     await bot.send_message(user_id, f"{user_name}, привет!\nВсегда рад видеть! 🤗")
     await utils.start_guide_stages(user_id)
@@ -98,6 +101,7 @@ async def start_handler( callback_query: types.CallbackQuery): #message: Message
 # # добавление пользователя в канал
 dp.chat_join_request.register(utils.approve_chat_join_request)
  
+
 # Нажатие кнопки открыть бонус
 @dp.callback_query(F.data == "open_bonus")
 async def process_open_bonus_button(callback_query: types.CallbackQuery): #message: Message, 
@@ -121,6 +125,7 @@ async def process_open_bonus_button(callback_query: types.CallbackQuery): #messa
         await utils.start_guide4(user_id)
 
 
+
 # Нажатие кнопки получать бонус за реферала
 @dp.callback_query(F.data == "get_and_open_bonus")
 async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
@@ -130,7 +135,6 @@ async def process_get_and_open_bonus(callback_query: types.CallbackQuery):
     await bot.send_message(user_id, text="+🎁 Бонус получен!\nОткройте его на вкладке Бонусы")
 
 
-# проверка уровня лида
 @dp.callback_query(F.data == "up_level")
 async def process_up_level(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
@@ -142,11 +146,11 @@ async def process_up_level(callback_query: types.CallbackQuery):
         await bot.send_message(user_id, text="У вашего Лида нет next level.\n\nВы можете выбрать Лида\nВкладка партнеры\nНаставники доступны:")
     # await bot.send_message(user_id, 'Лид не найден')
 
-# запрос пополнения для уровня
 @dp.callback_query(F.data == "up_me") 
 async def process_up_me(callback_query: types.CallbackQuery):
     user_id = callback_query.from_user.id
     await utils.up_me(user_id)
+
 
 # Выдаёт реквизиты №1 для пополнения grow_wallet
 @dp.callback_query(F.data == "add_grow") 
@@ -192,11 +196,13 @@ async def process_confirm_payment_button(callback_query: types.CallbackQuery, st
 @dp.callback_query(F.data == "admin_confirm_payment")
 async def process_confirm_payment_button(callback_query: types.CallbackQuery): #message: Message, callback_query: types.CallbackQuery, 
     text = callback_query.message.text
+
     splitted = str(text).split(';')
     user_id = splitted[1]
     amount = splitted[0]
     user_id = int(user_id)
     amount = int(amount)
+
     await utils.add_grow(user_id, amount)
     await bot.edit_message_reply_markup(config.levels_guide_id, message_id=callback_query.message.message_id, reply_markup=None )
     await bot.send_message(user_id, f'Пополнение grow_wallet:\n + {amount} рублей' )
@@ -210,6 +216,7 @@ async def process_amount(message: Message, state: FSMContext) -> None:
     await message.answer(f'Пополнение grow_wallet:\n + {message.text} рублей\n\nUser ID: {database.payment_to_check_user_id}',reply_markup=ReplyKeyboardMarkup(
             keyboard=[[KeyboardButton(text="Yes"),KeyboardButton(text="No"),]],resize_keyboard=True,),)
 
+
 # Подтвердить введенную сумму - да
 @dp.message(Form.amount_state_ok, F.text.casefold() == "yes")
 async def process_amount_state_ok(message: Message, state: FSMContext) -> None:
@@ -219,6 +226,7 @@ async def process_amount_state_ok(message: Message, state: FSMContext) -> None:
     await utils.add_grow(user_id, amount)
     await bot.send_message(user_id, f'Пополнение grow_wallet:\n + {amount} рублей' )
     await message.answer("Готово",reply_markup=ReplyKeyboardRemove())
+
 
 # Отменить введенную сумму (нет)
 @dp.message(Form.amount_state_ok, F.text.casefold() == "no")
@@ -449,6 +457,7 @@ async def photo_handler(message: Message):
     await bot.send_message(message.from_user.id, f'photo_data: {photo_data}')
 
 
+
 @dp.callback_query(F.data == "check_subscribe_button")
 async def check_subs(callback_query: types.CallbackQuery):
         user_id = callback_query.from_user.id
@@ -470,7 +479,9 @@ async def check_done(callback_query: types.CallbackQuery):
 
 
 # SWITCH TABS
+
 switch_tabs_data =      ["menu"   , "profile"   , "resources"   , "level"      , "balance"    , "partners"    , "bonuses"   , "info"     ] 
+
 switch_tabs_text=      ["Меню"   , "Профиль"   , "Ресурсы"     , "Уровень"    , "Баланс"     , "Партнеры"    , "Бонусы"    , "Инфо"     ]
 switch_tabs_emoji_text=["📍\nМеню", "🪪\nПрофиль", "🔗\nРесурсы", "🔼\nУровень", "💳\nБаланс", "💎\nПартнеры", "🎁\nБонусы", "🔎\nИнфо"]
 switch_tabs_commands = ["/menu"  , "/profile"  , "/resources"    , "/level"     , "/balance"   , "/partners"   , "/bonuses"    , "/info"    ]
@@ -478,7 +489,9 @@ switch_tabs_commands = ["/menu"  , "/profile"  , "/resources"    , "/level"     
 @dp.callback_query(F.data)
 async def swith_menu_tubs(callback_query: types.CallbackQuery):
     data = callback_query.data
+
     if data in switch_tabs_data:
+
         await utils.switch_tubs(data, user_id=callback_query.from_user.id)
         # await bot.answer_callback_query(callback_query.from_user.id)
 
@@ -487,6 +500,7 @@ async def swith_menu_tubs(callback_query: types.CallbackQuery):
 async def swith_menu_tubs(msg: Message):
     if msg.text in switch_tabs_emoji_text:
         index = switch_tabs_emoji_text.index(msg.text)
+
         data = switch_tabs_data[index]
         await utils.switch_tubs(data, user_id=msg.from_user.id)
     elif msg.text in switch_tabs_text:

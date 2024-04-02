@@ -15,7 +15,9 @@ from datetime import datetime, timedelta
 
 
 
+
 engine = create_engine("sqlite:///data/bot.db")
+
 Base = declarative_base()
 Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -54,6 +56,7 @@ Base.metadata.create_all(bind=engine)
 
 async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):   # user = await db.query(User).filter(User.id == user_id).first()
 
+
     with Session(expire_on_commit=False) as session:
         user = session.query(User).filter(User.user_id == user_id).first()
         # await bot.send_message(user_id, "пользователь загружен")
@@ -73,6 +76,7 @@ async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):  
             session.add(user)
             session.commit()
 
+
         # db.close()
         # if referrer_id:
         #     # referrer = await db.query(User).filter(User.id == referrer_id).first()
@@ -90,7 +94,11 @@ async def get_or_create_user(user_id, user_name, referral_link, referrer_id,):  
         await bot.send_message(user_id, text)
     # database.local_users[user_id] = user
     # local_user = database.local_users[user_id]
+
     # await bot.send_message(user_id, f"Добавлен {user.user_name}\nс балансом {user.restate}")  
+
+    await bot.send_message(user_id, f"Добавлен {user.user_name}\nс балансом {user.restate}")  
+
     return user 
 
 async def get_user(user_id):
@@ -121,6 +129,7 @@ async def user_info(user_id):
     return user_info
     # except:
     #     await bot.send_message(user_id, "Бот не обновляется♻️\nПерезайдите по реф.ссылке или попробуйте позднее") 
+
 
 async def get_all_users():
     # try:
@@ -172,12 +181,15 @@ level_18_channel_link = 'https://t.me/+BNqLnBJ2YdlkODFi'
 level_19_channel_link = 'https://t.me/+ad73g-MNUYw0Yjk6'
 level_20_channel_link = 'https://t.me/+wO5a1f6vPb4xN2My'
 
+
 # local_users = {}
 ubicoin = 250
 gamma = {}
 payment_to_check = {}
+
 payout = {}
 payment_to_check_user_id = 0
 payment_to_check_amount = 0
 # users = {}
+
 
