@@ -64,7 +64,7 @@ async def good_morning(user_id):
     restate = user.restate
     grow = user.grow_wallet
     add_restate_amount = restate * 0.0006
-    add_grow_amount = grow * 0.0006
+    add_grow_amount = grow * 0.0005
     await add_grow(user_id, add_grow_amount)
     await add_restate(user_id, add_restate_amount)
     await add_turnover(user_id, add_grow_amount+add_restate_amount)
